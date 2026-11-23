@@ -20,6 +20,20 @@ window.MOODS = [
 
 window.GAMES = [
   {
+    id: "role-neon",
+    title: "Rolê Neon",
+    description: "Corra pela avenida grafitada, desvie de vans, barreiras e placas, junte moedas e use na loja para turbinar poderes e trocar o visual do boneco.",
+    tags: ["Corrida", "Ação"],
+    moods: ["adrenalina", "rapido"],
+    controls: "Setas / WASD (Espaço pula), ou deslize o dedo para os lados, para cima e para baixo",
+    devices: "Computador e celular",
+    players: "1 jogador",
+    color: "#8b5cff",
+    emoji: "🏃",
+    featured: true,
+    added: "2026-11-23"
+  },
+  {
     id: "jogo-da-velha",
     title: "Jogo da Velha",
     description: "Jogue online contra outra pessoa, contra o computador ou com um amigo no mesmo aparelho. Tabuleiros 3x3, 4x4 e 5x5, temas e níveis de XP.",
