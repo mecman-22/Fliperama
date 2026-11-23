@@ -28,7 +28,7 @@ window.GAMES = [
     controls: "Arraste para trás e solte (estilingue). Teclado: setas miram e dão força, Espaço taca, L troca o tipo de tacada",
     devices: "Computador e celular",
     players: "1 jogador",
-    color: "#7ed957",
+    color: "#FF7241",
     emoji: "⛳",
     featured: true,
     added: "2026-11-23"
