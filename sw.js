@@ -1,14 +1,14 @@
 // Deixa o Fliperama instalável e jogável sem internet.
-// Páginas: tenta a rede primeiro (para ver sempre a versão nova) e usa o cache se estiver offline.
+// Páginas: sempre pergunta ao servidor se há versão nova (ignora o cache do navegador) e só usa a cópia salva se estiver offline.
 // Imagens, fontes e demais arquivos: serve do cache e atualiza em segundo plano.
-const V = 'fliperama-v16';
-const BASE = ['./', 'index.html', 'style.css?v=16', 'games.js?v=16', 'ranking-config.js?v=16', 'cloud.js?v=16', 'manifest.webmanifest',
+const V = 'fliperama-v17';
+const BASE = ['./', 'index.html', 'style.css?v=17', 'games.js?v=17', 'ranking-config.js?v=17', 'cloud.js?v=17', 'manifest.webmanifest',
   'assets/banner.webp', 'assets/icon-192.png', 'assets/icon-512.png',
   'games/coletor-estelar/index.html', 'games/memoria-cores/index.html', 'games/sudoku/index.html',
   'games/role-neon/index.html', 'games/mira-afiada/index.html', 'games/golfe-nuvens/index.html'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(V).then(c => c.addAll(BASE)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(V).then(c => c.addAll(BASE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -27,7 +27,7 @@ self.addEventListener('fetch', e => {
   const save = r => { if (r && (r.ok || r.type === 'opaque')) { const c = r.clone(); caches.open(V).then(x => x.put(req, c)); } return r; };
 
   if (req.mode === 'navigate' || req.destination === 'iframe' || req.destination === 'document') {
-    e.respondWith(fetch(req).then(save).catch(() => caches.match(req, { ignoreSearch: true }).then(h => h || caches.match('./'))));
+    e.respondWith(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(save).catch(() => caches.match(req, { ignoreSearch: true }).then(h => h || caches.match('./'))));
     return;
   }
   e.respondWith(caches.match(req).then(hit => {
