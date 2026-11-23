@@ -21,5 +21,15 @@ window.GAMES = [
     color: "#ff8a3d",
     emoji: "🧠",
     added: "2026-11-23"
+  },
+  {
+    id: "sudoku",
+    title: "Sudoku",
+    description: "Preencha a grade com números de 1 a 9 sem repetir na linha, na coluna nem no quadrado. Três níveis, anotações e dicas.",
+    tags: ["Puzzle", "Lógica"],
+    controls: "Toque na casa e no número, ou use o teclado (1-9, setas, N = notas, H = dica)",
+    color: "#2ee6d6",
+    emoji: "🔢",
+    added: "2026-11-23"
   }
 ];
