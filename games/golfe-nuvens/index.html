@@ -96,7 +96,7 @@
 <div class="screen" id="menu">
   <div class="panel">
     <h1>Golfe nas Nuvens</h1>
-    <p class="sub">O Pipo é a bola! Derrube todos os bichinhos da pista para abrir o buraco e termine com o menor número de tacadas.</p>
+    <p class="sub">Ajude o Pipo, o golfista das nuvens! Acerte a bola nos bichinhos da pista para abrir o buraco e termine com o menor número de tacadas.</p>
     <div class="stats" id="m-stats"></div>
     <div class="btns">
       <button class="b pink" id="play">▶ Jogar a rodada</button>
@@ -110,11 +110,11 @@
   <div class="panel">
     <h2>Como jogar</h2>
     <ul class="how">
-      <li><b>Mirar e tacar:</b> arraste o dedo ou o mouse <b>para trás</b> do Pipo, como um estilingue, e solte. Quanto mais longe, mais forte. No teclado: ← → miram, ↑ ↓ mudam a força e Espaço taca.</li>
+      <li><b>Mirar e tacar:</b> arraste o dedo ou o mouse <b>para trás</b> da bola, como um estilingue, e solte: o Pipo dá a tacada. Quanto mais longe, mais forte. No teclado: ← → miram, ↑ ↓ mudam a força e Espaço taca.</li>
       <li><b>Pontinhos brancos</b> mostram o caminho até a primeira batida.</li>
       <li><b>⛳ Rasteira / ☁️ Por cima:</b> a tacada por cima pula água e blocos.</li>
       <li><b>O buraco abre</b> só depois que todos os bichinhos forem derrubados.</li>
-      <li><b>Poderes:</b> a <b>Molinha</b> (rosa) dá o <b>Pulo</b> e o <b>Pedrisco</b> (cinza) dá o <b>Freio</b>. Use com Espaço ou ⚡ enquanto o Pipo rola.</li>
+      <li><b>Poderes:</b> a <b>Molinha</b> (rosa) dá o <b>Pulo</b> e o <b>Pedrisco</b> (cinza) dá o <b>Freio</b>. Use com Espaço ou ⚡ enquanto a bola rola.</li>
       <li><b>Pista:</b> areia freia, gelo escorrega, setas empurram, cogumelos quicam e portais teletransportam. Cair na água custa 1 tacada.</li>
     </ul>
     <div class="btns"><button class="b" data-back>← Voltar</button></div>
@@ -318,7 +318,7 @@ function startHole(idx) {
   H = loadHole(idx);
   B = { x: H.tee.x, y: H.tee.y, z: 0, vx: 0, vy: 0, vz: 0 };
   lob = false; warpLock = false; parts.length = 0;
-  aimDefault(); layout(); state = 'aim'; show(null); hud();
+  aimDefault(); placeGolfer(false); layout(); state = 'aim'; show(null); hud();
   $('t-name').textContent = `${idx + 1}. ${H.L.name}`;
   $('t-hint').textContent = H.enemies.length ? 'Derrube os bichinhos!' : 'Para o buraco!';
 }
@@ -326,13 +326,33 @@ function aimDefault() {
   const tgt = H.enemies.find(e => e.alive) || H.hole;
   aim.ang = Math.atan2(tgt.y - B.y, tgt.x - B.x); aim.pow = .55;
 }
+// ---------- Golfista (o Pipo) ----------
+// Fica ao lado da bola, de frente para ela; a tacada sai na linha da mira.
+const GF = { x: 0, y: 0, z: 0, swingT: -1, pow: .5, ang: 0 };
+const IMPACT = .34;
+function golferSpot(ang) {
+  const c = Math.cos(ang), s = Math.sin(ang), fb = floorH(at(B.x, B.y));
+  const ok = p => { const t = at(p.x, p.y); return t !== '.' && t !== 'a' && floorH(t) === fb; };
+  const a = { x: B.x - s * .55 - c * .1, y: B.y + c * .55 - s * .1 }, b = { x: B.x + s * .55 - c * .1, y: B.y - c * .55 - s * .1 };
+  const p = ok(a) || !ok(b) ? a : b;
+  return { x: p.x, y: p.y, z: fb };
+}
+function placeGolfer(poof) {
+  Object.assign(GF, golferSpot(aim.ang), { swingT: -1, ang: aim.ang, bx: B.x, by: B.y });
+  if (poof) burst(GF.x, GF.y, .2, '#ffffff', 8, 1.5);
+}
 function shoot() {
   if (state !== 'aim' || aim.pow < .04) return;
-  const v = aim.pow * VMAX, c = Math.cos(aim.ang), s = Math.sin(aim.ang);
+  Object.assign(GF, golferSpot(aim.ang), { swingT: 0, pow: aim.pow, ang: aim.ang, lob, bx: B.x, by: B.y });
+  state = 'swing';
+}
+function launch() {
+  const v = GF.pow * VMAX, c = Math.cos(GF.ang), s = Math.sin(GF.ang);
   H.from = { x: B.x, y: B.y, z: B.z };
-  if (lob) { B.vx = c * v * .8; B.vy = s * v * .8; B.vz = 4 + v * .5; B.z += .01; }
+  if (GF.lob) { B.vx = c * v * .8; B.vy = s * v * .8; B.vz = 4 + v * .5; B.z += .01; }
   else { B.vx = c * v; B.vy = s * v; B.vz = 0; }
-  H.shots++; state = 'roll'; beep(300 + v * 40, .08, 'triangle', .07, 180); hud();
+  H.shots++; state = 'roll'; beep(900, .05, 'square', .07, 500); beep(300 + v * 40, .08, 'triangle', .06, 180);
+  burst(B.x, B.y, .1, '#ffffff', 5, 1.5); hud();
 }
 function usePower() {
   if (state !== 'roll' || !H.power) return;
@@ -350,7 +370,9 @@ function update(dt) {
   }
   for (const p of parts) { p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt; p.vz -= 9 * dt; p.life -= dt; }
   for (let i = parts.length - 1; i >= 0; i--) if (parts[i].life <= 0) parts.splice(i, 1);
-  if (state === 'sunk') { sinkT += dt; if (sinkT > .7) holeDone(true); return; }
+  if (GF.swingT >= 0) GF.swingT += dt;
+  if (state === 'swing') { if (GF.swingT >= IMPACT) launch(); return; }
+  if (state === 'sunk') { sinkT += dt; if (sinkT > .9) holeDone(true); return; }
   if (state !== 'roll') return;
   const N = 5;
   for (let k = 0; k < N; k++) {
@@ -400,7 +422,7 @@ function knock(e) {
 function stopBall() {
   B.vx = B.vy = B.vz = 0; state = 'aim';
   if (H.shots >= 12) { holeDone(false); return; }
-  aimDefault(); hud();
+  aimDefault(); placeGolfer(true); hud();
 }
 
 // ---------- Pontuação ----------
@@ -701,24 +723,76 @@ function drawFlag() {
 function drawBall() {
   const fh = floorH(at(B.x, B.y));
   const shrink = state === 'sunk' ? Math.max(0, 1 - sinkT / .5) : 1;
-  const [sx, sy] = iso(B.x, B.y, fh), r = TW * .17 * shrink;
-  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(sx, sy, r * 1.05 / (1 + (B.z - fh) * .6), r * .5 / (1 + (B.z - fh) * .6), 0, 0, 7); ctx.fill();
+  const [sx, sy] = iso(B.x, B.y, fh), r = Math.max(2.5, TW * .085) * shrink;
+  const lift = 1 + (B.z - fh) * .6;
+  ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(sx, sy, r * 1.1 / lift, r * .5 / lift, 0, 0, 7); ctx.fill();
   if (shrink <= 0) return;
-  const [x, y] = iso(B.x, B.y, B.z);
-  const sp = Math.hypot(B.vx, B.vy);
-  const vx = state === 'aim' ? Math.cos(aim.ang) : sp ? B.vx / sp : 0, vy = state === 'aim' ? Math.sin(aim.ang) : sp ? B.vy / sp : 0;
-  const lx = (vx - vy), ly = (vx + vy) * .5;            // direção do olhar na tela
-  const cy = y - r;
-  const g = ctx.createRadialGradient(x - r * .35, cy - r * .4, r * .1, x, cy, r * 1.1);
-  g.addColorStop(0, '#fff3b0'); g.addColorStop(.5, '#ffb52e'); g.addColorStop(1, '#e07a00');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, cy, r, 0, 7); ctx.fill();
-  ctx.strokeStyle = '#8a4300'; ctx.lineWidth = Math.max(1.5, r * .1); ctx.stroke();
-  // topetinho
-  ctx.strokeStyle = '#e07a00'; ctx.lineWidth = Math.max(2, r * .16); ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(x, cy - r); ctx.quadraticCurveTo(x + r * .3, cy - r * 1.5, x + r * .55, cy - r * 1.2); ctx.stroke();
-  const ex = clamp(lx, -1, 1) * r * .25, ey = clamp(ly, -1, 1) * r * .2;
-  eyes(x + ex, cy - r * .1 + ey, r * 1.1, clamp(lx, -1, 1), clamp(ly, -1, 1));
-  ctx.fillStyle = 'rgba(255,90,140,.55)'; for (const d of [-1, 1]) { ctx.beginPath(); ctx.ellipse(x + ex + d * r * .62, cy + r * .28 + ey, r * .16, r * .09, 0, 0, 7); ctx.fill(); }
+  const [x, y] = iso(B.x, B.y, B.z), cy = y - r;
+  ctx.fillStyle = '#f7f7fb'; ctx.beginPath(); ctx.arc(x, cy, r, 0, 7); ctx.fill();
+  ctx.fillStyle = '#c9cbd8'; ctx.beginPath(); ctx.arc(x + r * .25, cy + r * .25, r * .7, 0, 7); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x - r * .2, cy - r * .2, r * .6, 0, 7); ctx.fill();
+  ctx.fillStyle = '#b5b8c8'; for (const [dx, dy] of [[.35, -.1], [-.1, .4], [.3, .45]]) ctx.fillRect(Math.round(x + dx * r), Math.round(cy + dy * r), 1, 1);
+  ctx.strokeStyle = '#4a4458'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, cy, r, 0, 7); ctx.stroke();
+}
+// Curva do balanço do taco: quanto o taco gira para trás (+) ou para a frente (−)
+function swingK(t, pow) {
+  const ease = u => u * u * (3 - 2 * u), back = 1.3 + pow * 1.7;
+  if (t < 0) return Math.sin(time * 2.5) * .06;
+  if (t < .22) return back * ease(t / .22);
+  if (t < IMPACT) return back * (1 - ((t - .22) / (IMPACT - .22)) ** 2);
+  if (t < .62) return -3.1 * ease((t - IMPACT) / (.62 - IMPACT));
+  return -3.1;
+}
+function golferPose() {
+  if (state === 'aim') return { ...golferSpot(aim.ang), t: -1, pow: aim.pow, bx: B.x, by: B.y };
+  return { x: GF.x, y: GF.y, z: GF.z, t: GF.swingT, pow: GF.pow, bx: GF.bx, by: GF.by };
+}
+function drawGolfer() {
+  if (state === 'menu') return;
+  const g = golferPose();
+  const [x, y0] = iso(g.x, g.y, g.z), u = Math.max(1.8, TW * .095);
+  const cheer = state === 'sunk' || (state === 'done' && H.open);
+  const y = y0 - (cheer ? Math.abs(Math.sin(time * 10)) * u * 2 : 0);
+  const [bx, by] = iso(g.bx, g.by, g.z);
+  const f = bx >= x ? 1 : -1;                                  // vira para o lado da bola
+  // sombra
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x, y0, u * 2.6, u * 1.1, 0, 0, 7); ctx.fill();
+  // pernas e sapatos
+  ctx.fillStyle = '#2b2d6e'; ctx.fillRect(Math.round(x - u * 1.3), Math.round(y - u * 3.2), Math.round(u * 1.1), Math.round(u * 3));
+  ctx.fillRect(Math.round(x + u * .2), Math.round(y - u * 3.2), Math.round(u * 1.1), Math.round(u * 3));
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(Math.round(x - u * 1.5 + (f < 0 ? -u * .3 : 0)), Math.round(y - u * .6), Math.round(u * 1.5), Math.round(u * .7));
+  ctx.fillRect(Math.round(x + u * .1 + (f > 0 ? u * .3 : 0)), Math.round(y - u * .6), Math.round(u * 1.5), Math.round(u * .7));
+  // tronco (camisa polo)
+  ctx.fillStyle = '#ff3e9a'; ctx.fillRect(Math.round(x - u * 1.7), Math.round(y - u * 6.3), Math.round(u * 3.4), Math.round(u * 3.4));
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(Math.round(x - u * .6), Math.round(y - u * 6.3), Math.round(u * 1.2), Math.round(u * .6));
+  ctx.strokeStyle = '#7a1043'; ctx.lineWidth = 1; ctx.strokeRect(Math.round(x - u * 1.7) + .5, Math.round(y - u * 6.3) + .5, Math.round(u * 3.4), Math.round(u * 3.4));
+  // braços + taco girando em volta do ombro
+  const px = x + f * u * .3, py = y - u * 5.4;
+  let a0 = Math.atan2(by - py, bx - px);
+  if (cheer) a0 = -Math.PI / 2 - f * .6;
+  const k = cheer ? 0 : swingK(g.t, g.pow), th = a0 - f * k;
+  const dx = Math.cos(th), dy = Math.sin(th);
+  const hx = px + dx * u * 2.6, hy = py + dy * u * 2.6;
+  const reach = Math.min(Math.hypot(bx - px, by - py), u * 9);
+  const cx = px + dx * reach, cyy = py + dy * reach;
+  ctx.strokeStyle = '#ff3e9a'; ctx.lineWidth = Math.max(2, u * .9); ctx.lineCap = 'square';
+  ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(hx, hy); ctx.stroke();
+  ctx.strokeStyle = '#2a2833'; ctx.lineWidth = Math.max(2, u * .5);
+  ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(cx, cyy); ctx.stroke();
+  ctx.fillStyle = '#c9cbd8'; ctx.fillRect(Math.round(cx - u * .9), Math.round(cyy - u * .55), Math.round(u * 1.8), Math.round(u * 1.1));
+  ctx.strokeStyle = '#2a2833'; ctx.lineWidth = 1; ctx.strokeRect(Math.round(cx - u * .9) + .5, Math.round(cyy - u * .55) + .5, Math.round(u * 1.8), Math.round(u * 1.1));
+  ctx.fillStyle = '#ffb52e'; ctx.fillRect(Math.round(hx - u * .5), Math.round(hy - u * .5), Math.round(u), Math.round(u));
+  // cabeça do Pipo
+  const hy0 = y - u * 8;
+  ctx.fillStyle = '#ffb52e'; ctx.beginPath(); ctx.arc(x, hy0, u * 2, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#8a4300'; ctx.lineWidth = 1; ctx.stroke();
+  eyes(x + f * u * .5, hy0 + u * .1, u * 1.9, f, .6);
+  ctx.fillStyle = 'rgba(255,90,140,.6)'; ctx.fillRect(Math.round(x + f * u * 1.3 - u * .4), Math.round(hy0 + u * .7), Math.round(u * .8), Math.round(u * .4));
+  // boné com aba virada para a bola
+  ctx.fillStyle = '#2ee6d6'; ctx.beginPath(); ctx.arc(x, hy0 - u * .3, u * 2.05, Math.PI, 0); ctx.closePath(); ctx.fill();
+  ctx.fillRect(Math.round(f > 0 ? x : x - u * 3.3), Math.round(hy0 - u * .6), Math.round(u * 3.3), Math.round(u * .6));
+  ctx.strokeStyle = '#167a72'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, hy0 - u * .3, u * 2.05, Math.PI, 0); ctx.stroke();
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(Math.round(x - u * .4), Math.round(hy0 - u * 2.1), Math.round(u * .8), Math.round(u * .8));
 }
 function drawGuide() {
   if (state !== 'aim') return;
@@ -758,7 +832,10 @@ function draw() {
   for (const p of H.posts) list.push({ d: p.x + p.y, f: () => drawPost(p) });
   for (const e of H.enemies) if (e.alive) list.push({ d: e.x + e.y, f: () => drawEnemy(e) });
   list.push({ d: H.hole.x + H.hole.y - .01, f: drawFlag });
-  if (state !== 'menu') list.push({ d: B.x + B.y + (B.z > .3 ? 1 : 0), f: drawBall });
+  if (state !== 'menu') {
+    list.push({ d: B.x + B.y + (B.z > .3 ? 1 : 0), f: drawBall });
+    const g = golferPose(); list.push({ d: g.x + g.y + .05, f: drawGolfer });
+  }
   list.sort((a, b) => a.d - b.d).forEach(o => o.f());
   for (const p of parts) {
     const [x, y] = iso(p.x, p.y, Math.max(0, p.z)); ctx.globalAlpha = clamp(p.life * 2, 0, 1);

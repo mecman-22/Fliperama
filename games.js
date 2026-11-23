@@ -22,7 +22,7 @@ window.GAMES = [
   {
     id: "golfe-nuvens",
     title: "Golfe nas Nuvens",
-    description: "Minigolfe com quebra-cabeça em ilhas flutuantes: o Pipo é a bola! Derrube os bichinhos para abrir o buraco, use ricochetes, setas, portais, tacadas por cima e poderes.",
+    description: "Minigolfe com quebra-cabeça em ilhas flutuantes, em pixel art: ajude o golfista Pipo a acertar os bichinhos para abrir o buraco, com ricochetes, setas, portais, tacadas por cima e poderes.",
     tags: ["Golfe", "Puzzle"],
     moods: ["pensar", "relaxar", "rapido"],
     controls: "Arraste para trás e solte (estilingue). Teclado: setas miram e dão força, Espaço taca, L troca o tipo de tacada",
