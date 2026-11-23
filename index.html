@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&family=Rubik:wght@400;600;700&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
   <div class="site-bg" aria-hidden="true"></div>
@@ -138,9 +138,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="games.js?v=14"></script>
-  <script src="ranking-config.js?v=14"></script>
-  <script src="cloud.js?v=14"></script>
+  <script src="games.js?v=15"></script>
+  <script src="ranking-config.js?v=15"></script>
+  <script src="cloud.js?v=15"></script>
   <script>
     const games = window.GAMES || [];
     const moods = window.MOODS || [];
@@ -178,6 +178,13 @@
     const mmss = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
     const RECORDS = {
       'coletor-estelar': () => { const b = +raw('coletor-best'); return b ? b + (b === 1 ? ' ponto' : ' pontos') : ''; },
+      'mira-afiada':     () => {
+        const r = raw('mira.recordes') || {}, p = [];
+        if (r.rajada) p.push('Rajada ' + r.rajada + ' pts');
+        if (r.flick) p.push('Flick ' + r.flick + ' ms');
+        if (r.reacao) p.push('Reação ' + r.reacao + ' ms');
+        return p.join(' · ');
+      },
       'role-neon':       () => { const b = +raw('role.best'), c = +raw('role.coins'); return b ? b + ' m' + (c ? ' · ' + c + ' moedas' : '') : ''; },
       'memoria-cores':   () => { const b = +raw('memoria-best'); return b ? 'sequência de ' + b : ''; },
       'sudoku': () => {

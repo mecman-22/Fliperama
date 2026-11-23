@@ -14,6 +14,7 @@
 
   // Que chaves cada jogo usa e como vira pontuação do ranking.
   const GAMES = {
+    'mira-afiada':     { keys: ['mira.recordes', 'mira.config'], pontos: d => +((val(d, 'mira.recordes') || {}).rajada) || 0, unidade: 'pts (Rajada)' },
     'role-neon':       { keys: ['role.coins', 'role.best', 'role.up', 'role.skins', 'role.skin'], pontos: d => +val(d, 'role.best') || 0, unidade: 'm' },
     'coletor-estelar': { keys: ['coletor-best'], pontos: d => +val(d, 'coletor-best') || 0, unidade: 'pontos' },
     'memoria-cores':   { keys: ['memoria-best'], pontos: d => +val(d, 'memoria-best') || 0, unidade: 'na sequência' },

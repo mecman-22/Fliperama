@@ -20,6 +20,20 @@ window.MOODS = [
 
 window.GAMES = [
   {
+    id: "mira-afiada",
+    title: "Mira Afiada",
+    description: "Treino de mira e reflexo para quem joga tiro: Rajada, Flick, Rastreio e teste de Reação. Mira personalizável e sensibilidade com o mouse travado.",
+    tags: ["Treino", "Reflexo"],
+    moods: ["adrenalina", "rapido"],
+    controls: "Mouse (clique para atirar). Esc pausa. No celular, toque nos alvos",
+    devices: "Computador e celular",
+    players: "1 jogador",
+    color: "#45ff2e",
+    emoji: "🎯",
+    featured: true,
+    added: "2026-11-23"
+  },
+  {
     id: "role-neon",
     title: "Rolê Neon",
     description: "Corra pela avenida grafitada, desvie de vans, barreiras e placas, junte moedas e use na loja para turbinar poderes e trocar o visual do boneco.",

@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Mira Afiada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Rubik:wght@400;600;700&display=swap">
+<style>
+  :root { --pink:#ff3e9a; --yellow:#ffe14d; --cyan:#2ee6d6; --green:#45ff2e; --ink:#151418; --paper:#f4efe2; --red:#ff3e5f; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0a0f; color: #fff; font-family: Rubik, system-ui, sans-serif;
+    user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+  canvas#cv { display: block; width: 100%; height: 100%; touch-action: none; cursor: none; }
+
+  .hud { position: absolute; inset: 0 0 auto 0; display: flex; justify-content: center; gap: 10px; padding: 10px; pointer-events: none; flex-wrap: wrap; }
+  body:not(.playing) .hud { display: none; }
+  .box { background: rgba(21,20,24,.78); border: 2px solid #2d2a35; border-radius: 10px; padding: 4px 12px; text-align: center; min-width: 78px; }
+  .box small { display: block; font-size: 11px; color: #a9a3b8; text-transform: uppercase; letter-spacing: 1px; }
+  .box b { font: 400 26px/1.1 Bangers, Impact, sans-serif; letter-spacing: 1px; }
+  .ico { position: absolute; top: 10px; right: 10px; pointer-events: auto; width: 40px; height: 40px; border-radius: 10px; border: 2px solid #2d2a35;
+    background: rgba(21,20,24,.85); color: #fff; font-size: 18px; cursor: pointer; }
+
+  .screen { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 14px; background: rgba(8,7,12,.86); overflow: auto; cursor: default; }
+  .screen[hidden] { display: none; }
+  .panel { width: 100%; max-width: 640px; max-height: 100%; overflow: auto; background: var(--paper); color: var(--ink); border: 4px solid var(--ink);
+    border-radius: 14px; box-shadow: 8px 8px 0 var(--pink); padding: 18px; text-align: center; }
+  h1, h2 { font-family: Bangers, Impact, sans-serif; font-weight: 400; letter-spacing: 2px; margin: 0; }
+  h1 { font-size: clamp(46px, 11vw, 68px); line-height: .9; color: var(--yellow); -webkit-text-stroke: 2px var(--ink);
+    text-shadow: 4px 4px 0 var(--pink), 7px 7px 0 var(--ink); transform: rotate(-2deg); margin: 4px 0 8px; }
+  h2 { font-size: 36px; color: var(--pink); -webkit-text-stroke: 1px var(--ink); text-shadow: 3px 3px 0 var(--ink); }
+  .sub { margin: 0 0 14px; font-size: 15px; }
+  .modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; text-align: left; }
+  .mode { border: 3px solid var(--ink); border-radius: 12px; background: #fff; padding: 10px 12px; cursor: pointer; box-shadow: 4px 4px 0 var(--ink);
+    display: flex; flex-direction: column; gap: 3px; font: inherit; color: inherit; text-align: left; transition: transform .1s; }
+  .mode:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .mode .t { font: 400 24px Bangers, Impact, sans-serif; letter-spacing: 1px; }
+  .mode .d { font-size: 13px; color: #4a4652; }
+  .mode .r { margin-top: 4px; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--yellow); border-radius: 6px; padding: 2px 8px; align-self: flex-start; }
+  .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+  button.b { font: 400 22px Bangers, Impact, sans-serif; letter-spacing: 1px; border: 3px solid var(--ink); border-radius: 10px; padding: 8px 18px;
+    background: var(--yellow); color: var(--ink); box-shadow: 4px 4px 0 var(--ink); cursor: pointer; }
+  button.b.pink { background: var(--pink); color: #fff; }
+  button.b.ghost { background: #fff; }
+  button.b:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+  .note { font-size: 12px; color: #4a4652; margin: 12px 0 0; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin: 12px 0; }
+  .stat { background: var(--ink); color: #fff; border-radius: 10px; padding: 8px; }
+  .stat small { display: block; font-size: 11px; color: #a9a3b8; text-transform: uppercase; letter-spacing: 1px; }
+  .stat b { font: 400 30px Bangers, Impact, sans-serif; letter-spacing: 1px; color: var(--yellow); }
+  .rank { display: inline-block; font: 400 30px Bangers, Impact, sans-serif; letter-spacing: 1px; padding: 2px 14px; border-radius: 8px; background: var(--cyan); border: 3px solid var(--ink); transform: rotate(-2deg); }
+  .newrec { display: inline-block; background: var(--pink); color: #fff; padding: 3px 10px; border-radius: 6px; font-weight: 700; transform: rotate(-2deg); margin-left: 6px; }
+  .tip { font-size: 14px; margin: 6px 0 0; }
+
+  .cfg { display: grid; grid-template-columns: 1fr 150px; gap: 14px; text-align: left; align-items: start; }
+  .cfg label { display: flex; flex-direction: column; gap: 3px; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .cfg label.row { flex-direction: row; align-items: center; gap: 8px; }
+  .cfg input[type=range] { width: 100%; accent-color: var(--pink); }
+  .cfg output { font-weight: 400; color: #4a4652; }
+  .swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+  .sw { width: 30px; height: 30px; border-radius: 8px; border: 3px solid var(--ink); cursor: pointer; }
+  .sw.on { box-shadow: 0 0 0 3px var(--pink); }
+  #prev { width: 150px; height: 150px; border-radius: 12px; border: 3px solid var(--ink); background: #1b1a22; }
+  @media (max-width: 520px) {
+    .modes { grid-template-columns: 1fr; }
+    .cfg { grid-template-columns: 1fr; }
+    #prev { justify-self: center; }
+  }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+
+<div class="hud">
+  <div class="box"><small id="h-l1">Tempo</small><b id="h-1">30</b></div>
+  <div class="box"><small id="h-l2">Pontos</small><b id="h-2">0</b></div>
+  <div class="box"><small id="h-l3">Precisão</small><b id="h-3">100%</b></div>
+</div>
+<button class="ico" id="pause" aria-label="Pausar" hidden>⏸</button>
+
+<!-- Menu -->
+<div class="screen" id="menu">
+  <div class="panel">
+    <h1>Mira Afiada</h1>
+    <p class="sub">Treino de reflexo e mira para jogos de tiro. Escolha um modo:</p>
+    <div class="modes" id="modes"></div>
+    <div class="btns"><button class="b ghost" id="open-cfg">⚙️ Mira e sensibilidade</button></div>
+    <p class="note" id="menu-note"></p>
+  </div>
+</div>
+
+<!-- Configurações -->
+<div class="screen" id="config" hidden>
+  <div class="panel">
+    <h2>Mira e sensibilidade</h2>
+    <div class="cfg" style="margin-top:12px">
+      <div>
+        <label>Cor da mira<div class="swatches" id="swatches"></div></label>
+        <label>Tamanho <output id="o-tam"></output><input type="range" id="c-tam" min="2" max="20" step="1"></label>
+        <label>Espaço no meio <output id="o-gap"></output><input type="range" id="c-gap" min="0" max="12" step="1"></label>
+        <label>Espessura <output id="o-esp"></output><input type="range" id="c-esp" min="1" max="6" step="1"></label>
+        <label class="row"><input type="checkbox" id="c-ponto"> Ponto no centro</label>
+        <label class="row only-mouse"><input type="checkbox" id="c-travar"> Travar o mouse na tela (estilo FPS)</label>
+        <label class="only-mouse">Sensibilidade (com o mouse travado) <output id="o-sens"></output><input type="range" id="c-sens" min="0.2" max="3" step="0.05"></label>
+        <label class="row"><input type="checkbox" id="c-som"> Som</label>
+      </div>
+      <canvas id="prev" width="300" height="300"></canvas>
+    </div>
+    <div class="btns"><button class="b" id="close-cfg">✔ Pronto</button></div>
+  </div>
+</div>
+
+<!-- Resultado -->
+<div class="screen" id="result" hidden>
+  <div class="panel">
+    <h2 id="r-title">Resultado</h2>
+    <div style="margin-top:8px"><span class="rank" id="r-rank"></span><span id="r-new"></span></div>
+    <div class="stats" id="r-stats"></div>
+    <p class="tip" id="r-tip"></p>
+    <div class="btns">
+      <button class="b pink" id="again">↻ De novo</button>
+      <button class="b ghost" id="to-menu">Outros modos</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pausa -->
+<div class="screen" id="paused" hidden>
+  <div class="panel">
+    <h2>Pausado</h2>
+    <p class="sub" style="margin-top:8px">Clique em continuar para voltar a mirar.</p>
+    <div class="btns">
+      <button class="b pink" id="resume">▶ Continuar</button>
+      <button class="b ghost" id="quit">Sair</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// © 2026 Fliperama. Jogo original.
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const rand = (a, b) => a + Math.random() * (b - a);
+const touch = matchMedia('(pointer: coarse)').matches;
+const S = {
+  get(k, d) { try { const v = JSON.parse(localStorage.getItem('mira.' + k)); return v ?? d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('mira.' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const rec = S.get('recordes', {});
+const cfg = Object.assign({ cor: '#45ff2e', tam: 8, gap: 3, esp: 2, ponto: false, travar: true, sens: 1, som: true }, S.get('config', {}));
+const COLORS = ['#45ff2e', '#2ee6d6', '#ffe14d', '#ff3e9a', '#ffffff', '#ff7a1a'];
+
+// ---------- Modos ----------
+const MODES = {
+  rajada:   { name: 'Rajada',   icon: '💥', desc: '3 alvos ao mesmo tempo. Acerte o máximo que conseguir em 30 segundos.', better: 'max',
+              fmt: v => v + ' pts' },
+  flick:    { name: 'Flick',    icon: '⚡', desc: 'Um alvo pequeno por vez, longe da mira. Acerte 30 o mais rápido possível.', better: 'min',
+              fmt: v => v + ' ms/alvo' },
+  rastreio: { name: 'Rastreio', icon: '〰️', desc: 'O alvo anda e muda de lado. Mantenha a mira em cima dele por 30 segundos.', better: 'max',
+              fmt: v => v + '% no alvo' },
+  reacao:   { name: 'Reação',   icon: '⏱️', desc: 'Clique assim que a tela ficar verde. Média de 5 rodadas.', better: 'min',
+              fmt: v => v + ' ms' }
+};
+// Notas por modo: [limite, nome] do melhor para o pior
+const GRADES = {
+  rajada:   [[9500, 'Lendário'], [7800, 'Monstro'], [5800, 'Afiado'], [3800, 'Bom'], [0, 'Aquecendo']],
+  flick:    [[450, 'Lendário'], [560, 'Monstro'], [700, 'Afiado'], [900, 'Bom'], [1e9, 'Aquecendo']],
+  rastreio: [[80, 'Lendário'], [65, 'Monstro'], [50, 'Afiado'], [35, 'Bom'], [0, 'Aquecendo']],
+  reacao:   [[180, 'Lendário'], [215, 'Monstro'], [250, 'Afiado'], [300, 'Bom'], [1e9, 'Aquecendo']]
+};
+function grade(mode, v) {
+  const g = GRADES[mode], max = MODES[mode].better === 'max';
+  return (g.find(([lim]) => max ? v >= lim : v <= lim) || g[g.length - 1])[1];
+}
+const TIPS = {
+  rajada: 'Dica: não espere a mira parar. Mire já pensando no próximo alvo.',
+  flick: 'Dica: faça um movimento rápido até perto do alvo e um ajuste pequeno no final.',
+  rastreio: 'Dica: acompanhe com o braço, não com o pulso, e antecipe a troca de direção.',
+  reacao: 'Dica: relaxe a mão e deixe o dedo já encostado no botão.'
+};
+
+// ---------- Som ----------
+let AC = null;
+function beep(f, d, type = 'square', vol = .05, to = 0) {
+  if (!cfg.som) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(to, t + d);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g).connect(AC.destination); o.start(t); o.stop(t + d + .02);
+  } catch (e) {}
+}
+const sfx = { hit: () => beep(880, .07, 'square', .05, 1500), miss: () => beep(160, .06, 'triangle', .05, 110), tick: () => beep(660, .06, 'sine', .06), go: () => beep(990, .12, 'sine', .08) };
+
+// ---------- Tela ----------
+let W, H, U;
+function resize() {
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  W = innerWidth; H = innerHeight; U = Math.min(W, H);
+  cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cross.x = Math.min(cross.x || W / 2, W); cross.y = Math.min(cross.y || H / 2, H);
+}
+const cross = { x: 0, y: 0 };
+addEventListener('resize', resize); resize(); cross.x = W / 2; cross.y = H / 2;
+
+// ---------- Estado ----------
+let state = 'menu', mode = 'rajada', G = null, time = 0, locked = false;
+const arena = () => ({ x0: U * .08, y0: Math.max(70, U * .12), x1: W - U * .08, y1: H - U * .08 });
+
+function newGame(m) {
+  mode = m;
+  G = { t: 0, count: m === 'reacao' ? 0 : 3, targets: [], fx: [], hits: 0, shots: 0, score: 0, times: [],
+        onT: 0, total: 30, round: 0, phase: 'wait', goAt: 0, waitUntil: 0, msg: '', vel: { x: 0, y: 0 }, turnAt: 0, done: false };
+  if (m === 'reacao') nextRound();
+}
+function radius() { return mode === 'flick' ? U * .024 : mode === 'rastreio' ? U * .045 : U * .036; }
+function spawn(farFrom) {
+  const a = arena(), r = radius();
+  for (let tries = 0; tries < 60; tries++) {
+    const x = rand(a.x0 + r, a.x1 - r), y = rand(a.y0 + r, a.y1 - r);
+    if (G.targets.some(t => Math.hypot(t.x - x, t.y - y) < r * 3.2)) continue;
+    if (farFrom && Math.hypot(farFrom.x - x, farFrom.y - y) < U * .28 && tries < 50) continue;
+    return { x, y, r, born: time };
+  }
+  return { x: (a.x0 + a.x1) / 2, y: (a.y0 + a.y1) / 2, r, born: time };
+}
+function startPlay() {
+  if (mode === 'rajada') { G.targets = [spawn(), spawn(), spawn()]; }
+  if (mode === 'flick') { G.targets = [spawn(cross)]; }
+  if (mode === 'rastreio') { const a = arena(); G.targets = [{ x: (a.x0 + a.x1) / 2, y: (a.y0 + a.y1) / 2, r: radius(), born: time }]; G.turnAt = 0; }
+}
+function nextRound() { G.phase = 'wait'; G.waitUntil = time + rand(1.3, 3.6); G.msg = ''; }
+
+// ---------- Telas ----------
+const screens = ['menu', 'config', 'result', 'paused'];
+function show(id) { screens.forEach(s => $(s).hidden = s !== id); document.body.classList.toggle('playing', !id); $('pause').hidden = !!id; }
+function renderMenu() {
+  $('modes').innerHTML = Object.entries(MODES).map(([id, m]) =>
+    `<button class="mode" data-mode="${id}"><span class="t">${m.icon} ${m.name}</span><span class="d">${m.desc}</span>
+     <span class="r">${rec[id] != null ? '🏆 ' + m.fmt(rec[id]) : 'Sem recorde ainda'}</span></button>`).join('');
+  $('menu-note').textContent = touch
+    ? 'No celular, toque nos alvos. Para treinar de verdade a mira do jogo, use mouse no computador.'
+    : cfg.travar ? 'O mouse fica travado na tela durante o treino (como num jogo de tiro). Esc pausa e solta o mouse.'
+                 : 'Esc ou P pausa o treino.';
+}
+function toMenu() { state = 'menu'; G = null; exitLock(); renderMenu(); show('menu'); }
+function start(m) {
+  newGame(m); state = 'play'; show(null);
+  if (AC && AC.state === 'suspended') AC.resume();
+  if (m !== 'reacao') { cross.x = W / 2; cross.y = H / 2; }
+  requestLock();
+}
+function requestLock() { if (cfg.travar && !touch && cv.requestPointerLock) { try { const p = cv.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (e) {} } }
+function exitLock() { if (document.pointerLockElement) document.exitPointerLock(); }
+document.addEventListener('pointerlockchange', () => {
+  locked = document.pointerLockElement === cv;
+  if (!locked && state === 'play' && !G.done && cfg.travar && !touch) pause();
+});
+function pause() { if (state !== 'play') return; state = 'pause'; show('paused'); exitLock(); }
+function resume() { state = 'play'; show(null); requestLock(); }
+
+function finish() {
+  G.done = true; state = 'result'; exitLock();
+  let val, stats;
+  const acc = G.shots ? Math.round(G.hits / G.shots * 100) : 0;
+  if (mode === 'rajada') {
+    val = G.score;
+    stats = [['Pontos', G.score], ['Acertos', G.hits], ['Precisão', acc + '%'], ['Alvos/s', (G.hits / 30).toFixed(1)]];
+  } else if (mode === 'flick') {
+    val = Math.round(G.times.reduce((a, b) => a + b, 0) / G.times.length);
+    stats = [['Média por alvo', val + ' ms'], ['Mais rápido', Math.round(Math.min(...G.times)) + ' ms'], ['Precisão', acc + '%'], ['Tempo total', (G.times.reduce((a, b) => a + b, 0) / 1000).toFixed(1) + ' s']];
+  } else if (mode === 'rastreio') {
+    val = Math.round(G.onT / G.total * 100);
+    stats = [['No alvo', val + '%'], ['Segundos no alvo', G.onT.toFixed(1) + ' s']];
+  } else {
+    val = Math.round(G.times.reduce((a, b) => a + b, 0) / G.times.length);
+    stats = [['Média', val + ' ms'], ['Melhor', Math.round(Math.min(...G.times)) + ' ms'], ['Pior', Math.round(Math.max(...G.times)) + ' ms']];
+  }
+  const m = MODES[mode], prev = rec[mode];
+  const isRec = prev == null || (m.better === 'max' ? val > prev : val < prev);
+  if (isRec && (mode !== 'rajada' || val > 0)) { rec[mode] = val; S.set('recordes', rec); }
+  $('r-title').textContent = m.icon + ' ' + m.name;
+  $('r-rank').textContent = grade(mode, val);
+  $('r-new').innerHTML = isRec ? '<span class="newrec">🏆 Novo recorde!</span>' : '';
+  $('r-stats').innerHTML = stats.map(([k, v]) => `<div class="stat"><small>${k}</small><b>${v}</b></div>`).join('')
+    + (!isRec ? `<div class="stat"><small>Seu recorde</small><b>${m.fmt(prev)}</b></div>` : '');
+  $('r-tip').textContent = TIPS[mode];
+  show('result');
+}
+
+// ---------- Tiro ----------
+function shoot() {
+  if (state !== 'play' || G.done) return;
+  if (mode === 'reacao') {
+    if (G.phase === 'wait') { G.phase = 'early'; G.msg = 'Cedo demais!'; sfx.miss(); G.waitUntil = time + 1.1; return; }
+    if (G.phase === 'go') {
+      const ms = (performance.now() - G.goAt);
+      G.times.push(ms); G.msg = Math.round(ms) + ' ms'; G.phase = 'show'; G.waitUntil = time + 1.1; sfx.hit(); G.round++;
+    }
+    return;
+  }
+  if (G.count > 0 || mode === 'rastreio') return;
+  G.shots++;
+  const i = G.targets.findIndex(t => Math.hypot(t.x - cross.x, t.y - cross.y) <= t.r);
+  if (i < 0) { sfx.miss(); G.fx.push({ k: 'miss', x: cross.x, y: cross.y, t: time }); if (mode === 'rajada') G.score = Math.max(0, G.score - 50); return; }
+  const t = G.targets[i];
+  G.hits++; sfx.hit();
+  G.fx.push({ k: 'hit', x: t.x, y: t.y, r: t.r, t: time });
+  if (mode === 'rajada') {
+    const fast = Math.max(0, 1 - (time - t.born) / 1.2);
+    const pts = 100 + Math.round(fast * 50);
+    G.score += pts; G.fx.push({ k: 'txt', x: t.x, y: t.y - t.r, t: time, txt: '+' + pts });
+    G.targets.splice(i, 1, spawn());
+  } else if (mode === 'flick') {
+    G.times.push((time - t.born) * 1000);
+    if (G.times.length >= 30) return finish();
+    G.targets = [spawn(cross)];
+  }
+}
+
+// ---------- Entrada ----------
+cv.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (!locked) { cross.x = e.clientX; cross.y = e.clientY; }
+  if (state === 'play' && cfg.travar && !touch && !locked && e.pointerType === 'mouse') { requestLock(); }
+  shoot();
+});
+cv.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('pointermove', e => {
+  if (locked) {
+    cross.x = Math.max(0, Math.min(W, cross.x + e.movementX * cfg.sens));
+    cross.y = Math.max(0, Math.min(H, cross.y + e.movementY * cfg.sens));
+  } else if (e.target === cv) { cross.x = e.clientX; cross.y = e.clientY; }
+});
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if ((k === 'p' || k === 'escape') && state === 'play') pause();
+  else if (k === 'enter' && state === 'result') start(mode);
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+
+$('modes').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (b) start(b.dataset.mode); });
+$('again').onclick = () => start(mode);
+$('to-menu').onclick = toMenu; $('quit').onclick = toMenu;
+$('resume').onclick = resume; $('pause').onclick = pause;
+
+// ---------- Configurações ----------
+function renderCfg() {
+  $('swatches').innerHTML = COLORS.map(c => `<span class="sw${c === cfg.cor ? ' on' : ''}" data-c="${c}" style="background:${c}" role="button" aria-label="Cor ${c}"></span>`).join('');
+  for (const k of ['tam', 'gap', 'esp', 'sens']) { $('c-' + k).value = cfg[k]; $('o-' + k).textContent = k === 'sens' ? (+cfg[k]).toFixed(2) + '×' : cfg[k]; }
+  $('c-ponto').checked = cfg.ponto; $('c-travar').checked = cfg.travar; $('c-som').checked = cfg.som;
+  document.querySelectorAll('.only-mouse').forEach(el => el.hidden = touch);
+  const p = $('prev').getContext('2d');
+  p.clearRect(0, 0, 300, 300);
+  p.fillStyle = '#1b1a22'; p.fillRect(0, 0, 300, 300);
+  p.fillStyle = '#2a2833'; for (let i = 0; i < 300; i += 30) { p.fillRect(i, 0, 1, 300); p.fillRect(0, i, 300, 1); }
+  p.save(); p.scale(2, 2); drawCross(p, 75, 75); p.restore();
+}
+$('swatches').addEventListener('click', e => { const s = e.target.closest('[data-c]'); if (s) { cfg.cor = s.dataset.c; save(); } });
+for (const k of ['tam', 'gap', 'esp', 'sens']) $('c-' + k).addEventListener('input', e => { cfg[k] = +e.target.value; save(); });
+for (const k of ['ponto', 'travar', 'som']) $('c-' + k).addEventListener('change', e => { cfg[k] = e.target.checked; save(); });
+function save() { S.set('config', cfg); renderCfg(); }
+$('open-cfg').onclick = () => { renderCfg(); show('config'); };
+$('close-cfg').onclick = () => { renderMenu(); show('menu'); };
+
+// ---------- Desenho ----------
+function drawCross(c, x, y) {
+  const g = cfg.gap, s = cfg.tam, w = cfg.esp;
+  const bars = [[x - g - s, y - w / 2, s, w], [x + g, y - w / 2, s, w], [x - w / 2, y - g - s, w, s], [x - w / 2, y + g, w, s]];
+  c.fillStyle = 'rgba(0,0,0,.85)';
+  for (const [bx, by, bw, bh] of bars) c.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+  if (cfg.ponto) c.fillRect(x - w / 2 - 1, y - w / 2 - 1, w + 2, w + 2);
+  c.fillStyle = cfg.cor;
+  for (const [bx, by, bw, bh] of bars) c.fillRect(bx, by, bw, bh);
+  if (cfg.ponto) c.fillRect(x - w / 2, y - w / 2, w, w);
+}
+function drawTarget(t, glow) {
+  const k = Math.min(1, (time - t.born) / .09), r = t.r * (0.6 + 0.4 * k);
+  if (glow) { ctx.fillStyle = 'rgba(69,255,46,.22)'; ctx.beginPath(); ctx.arc(t.x, t.y, r * 1.5, 0, 7); ctx.fill(); }
+  ctx.fillStyle = '#151418'; ctx.beginPath(); ctx.arc(t.x, t.y, r + 2, 0, 7); ctx.fill();
+  ctx.fillStyle = glow ? '#45ff2e' : '#ff3e5f'; ctx.beginPath(); ctx.arc(t.x, t.y, r, 0, 7); ctx.fill();
+  ctx.fillStyle = '#f4efe2'; ctx.beginPath(); ctx.arc(t.x, t.y, r * .66, 0, 7); ctx.fill();
+  ctx.fillStyle = glow ? '#45ff2e' : '#ff3e5f'; ctx.beginPath(); ctx.arc(t.x, t.y, r * .36, 0, 7); ctx.fill();
+}
+function bg() {
+  ctx.fillStyle = '#0f0e14'; ctx.fillRect(0, 0, W, H);
+  const step = Math.max(40, U / 12);
+  ctx.strokeStyle = 'rgba(255,255,255,.045)'; ctx.lineWidth = 1; ctx.beginPath();
+  for (let x = (W / 2) % step; x < W; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+  for (let y = (H / 2) % step; y < H; y += step) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+  ctx.stroke();
+  const a = arena();
+  ctx.strokeStyle = 'rgba(255,62,154,.25)'; ctx.setLineDash([8, 8]); ctx.strokeRect(a.x0, a.y0, a.x1 - a.x0, a.y1 - a.y0); ctx.setLineDash([]);
+}
+
+function update(dt) {
+  if (state !== 'play' || !G || G.done) return;
+  if (mode === 'reacao') {
+    if ((G.phase === 'wait') && time >= G.waitUntil) { G.phase = 'go'; G.goAt = performance.now(); sfx.go(); }
+    else if ((G.phase === 'early' || G.phase === 'show') && time >= G.waitUntil) {
+      if (G.round >= 5) return finish();
+      nextRound();
+    }
+    return;
+  }
+  if (G.count > 0) {
+    const before = Math.ceil(G.count); G.count -= dt;
+    if (Math.ceil(G.count) !== before && G.count > 0) sfx.tick();
+    if (G.count <= 0) { G.count = 0; sfx.go(); startPlay(); }
+    return;
+  }
+  G.t += dt;
+  if (mode === 'rajada' || mode === 'rastreio') { if (G.t >= G.total) return finish(); }
+  if (mode === 'rastreio') {
+    const t = G.targets[0], a = arena();
+    if (time >= G.turnAt) {
+      const sp = U * rand(.22, .5) * (1 + G.t / 60), ang = Math.random() < .55 ? (Math.random() < .5 ? 0 : Math.PI) + rand(-.35, .35) : rand(0, Math.PI * 2);
+      G.vel = { x: Math.cos(ang) * sp, y: Math.sin(ang) * sp * .7 }; G.turnAt = time + rand(.35, 1.1);
+    }
+    t.x += G.vel.x * dt; t.y += G.vel.y * dt;
+    if (t.x < a.x0 + t.r || t.x > a.x1 - t.r) { G.vel.x *= -1; t.x = Math.max(a.x0 + t.r, Math.min(a.x1 - t.r, t.x)); }
+    if (t.y < a.y0 + t.r || t.y > a.y1 - t.r) { G.vel.y *= -1; t.y = Math.max(a.y0 + t.r, Math.min(a.y1 - t.r, t.y)); }
+    t.on = Math.hypot(t.x - cross.x, t.y - cross.y) <= t.r;
+    if (t.on) G.onT += dt;
+  }
+}
+
+function draw() {
+  if (mode === 'reacao' && state === 'play' && G) {
+    const go = G.phase === 'go', early = G.phase === 'early';
+    ctx.fillStyle = go ? '#1fbf4a' : early ? '#5a1020' : G.phase === 'show' ? '#1b2a4a' : '#3a0f1c';
+    ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff';
+    ctx.font = `${Math.round(U * .11)}px Bangers, Impact, sans-serif`;
+    ctx.fillText(go ? 'CLIQUE!' : G.msg || 'Espere o verde...', W / 2, H / 2);
+    ctx.font = `${Math.round(U * .035)}px Rubik, sans-serif`;
+    ctx.fillText(`Rodada ${Math.min(G.round + 1, 5)} de 5`, W / 2, H / 2 + U * .1);
+    hud(); return;
+  }
+  bg();
+  if (G && state !== 'menu') {
+    for (const t of G.targets) drawTarget(t, mode === 'rastreio' && t.on);
+    // efeitos
+    G.fx = G.fx.filter(f => time - f.t < .45);
+    for (const f of G.fx) {
+      const k = (time - f.t) / .45;
+      if (f.k === 'hit') { ctx.strokeStyle = `rgba(255,225,77,${1 - k})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (1 + k * 1.2), 0, 7); ctx.stroke(); }
+      else if (f.k === 'miss') { ctx.strokeStyle = `rgba(255,62,95,${1 - k})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(f.x - 6, f.y - 6); ctx.lineTo(f.x + 6, f.y + 6); ctx.moveTo(f.x + 6, f.y - 6); ctx.lineTo(f.x - 6, f.y + 6); ctx.stroke(); }
+      else if (f.k === 'txt') { ctx.fillStyle = `rgba(255,225,77,${1 - k})`; ctx.font = `${Math.round(U * .03)}px Bangers, Impact, sans-serif`; ctx.textAlign = 'center'; ctx.fillText(f.txt, f.x, f.y - k * 30); }
+    }
+    if (G.count > 0) {
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ffe14d';
+      ctx.font = `${Math.round(U * .2)}px Bangers, Impact, sans-serif`;
+      ctx.fillText(Math.ceil(G.count), W / 2, H / 2);
+    }
+  }
+  if (state === 'play' || state === 'pause') drawCross(ctx, cross.x, cross.y);
+  hud();
+}
+
+function hud() {
+  if (state !== 'play' || !G) return;
+  const acc = G.shots ? Math.round(G.hits / G.shots * 100) + '%' : '—';
+  let v;
+  if (mode === 'rajada') v = [['Tempo', Math.ceil(Math.max(0, G.total - G.t))], ['Pontos', G.score], ['Precisão', acc]];
+  else if (mode === 'flick') v = [['Alvos', `${G.times.length}/30`], ['Média', G.times.length ? Math.round(G.times.reduce((a, b) => a + b, 0) / G.times.length) + 'ms' : '—'], ['Precisão', acc]];
+  else if (mode === 'rastreio') v = [['Tempo', Math.ceil(Math.max(0, G.total - G.t))], ['No alvo', (G.t ? Math.round(G.onT / G.t * 100) : 0) + '%'], ['Segundos', G.onT.toFixed(1)]];
+  else v = [['Rodada', `${Math.min(G.round + 1, 5)}/5`], ['Última', G.times.length ? Math.round(G.times[G.times.length - 1]) + 'ms' : '—'], ['Média', G.times.length ? Math.round(G.times.reduce((a, b) => a + b, 0) / G.times.length) + 'ms' : '—']];
+  v.forEach(([l, x], i) => { $('h-l' + (i + 1)).textContent = l; $('h-' + (i + 1)).textContent = x; });
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now; time += dt;
+  update(dt); draw();
+  requestAnimationFrame(frame);
+}
+renderMenu(); show('menu');
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
