@@ -479,3 +479,54 @@ footer .sig {
 .mini-thumb { position: relative; }
 .featured .badges { top: auto; bottom: 10px; }
 @media (max-width: 820px) { #featured { max-width: 560px; width: 100%; margin-top: 12px; } }
+
+/* =================== Banner principal (arte grafitada) =================== */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.banner-wrap {
+  position: relative;
+  max-width: 1100px; margin: 0 auto;
+  padding: 40px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+}
+.banner {
+  position: relative; overflow: hidden;
+  border: 4px solid var(--ink);
+  box-shadow: 10px 10px 0 var(--yellow), 20px 20px 0 rgba(0, 0, 0, .45);
+  transform: rotate(-.8deg);
+  transition: transform .25s ease-out;
+  background: var(--wall-dark);
+  will-change: transform;
+}
+.banner img { display: block; width: 100%; height: auto; max-width: 100%; aspect-ratio: 8 / 3; }
+/* brilho de tinta fresca passando pelo banner */
+.glint {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, .22) 50%, transparent 58%);
+  background-size: 260% 100%;
+  animation: glint 7s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+@keyframes glint { 0%, 55% { background-position: 130% 0; } 100% { background-position: -130% 0; } }
+/* fita crepe segurando o banner */
+.banner-wrap::before, .banner-wrap::after {
+  content: ""; position: absolute; z-index: 3; width: 120px; height: 32px;
+  background: var(--tape); box-shadow: 0 1px 3px rgba(0, 0, 0, .3); pointer-events: none;
+}
+.banner-wrap::before { top: 26px; left: max(0px, calc(env(safe-area-inset-left, 0px) - 8px)); transform: rotate(-24deg); }
+.banner-wrap::after  { top: 26px; right: max(0px, calc(env(safe-area-inset-right, 0px) - 8px)); transform: rotate(22deg); }
+/* tinta amarela escorrendo da borda de baixo */
+.banner-drips { position: relative; display: block; z-index: 2; height: 0; margin: 0 8px; transform: rotate(-.8deg); }
+.banner-drips i { top: -6px; }
+
+.hero { padding-top: 44px; }
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 24px; }
+
+@media (max-width: 600px) {
+  .banner-wrap { padding-top: 24px; }
+  .banner { box-shadow: 6px 6px 0 var(--yellow), 11px 11px 0 rgba(0, 0, 0, .45); border-width: 3px; }
+  .banner-wrap::before, .banner-wrap::after { width: 70px; height: 22px; top: 14px; }
+  .banner-drips i { transform: scale(.7); transform-origin: top; }
+  .hero { padding-top: 36px; }
+}

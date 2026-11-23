@@ -11,11 +11,14 @@
   <meta property="og:description" content="Jogos autorais grátis para jogar direto no navegador, no computador ou no celular.">
   <meta property="og:url" content="https://mecman-22.github.io/Fliperama/">
   <meta property="og:locale" content="pt_BR">
+  <meta property="og:image" content="https://mecman-22.github.io/Fliperama/assets/banner.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preload" as="image" href="assets/banner.webp">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23151418'/%3E%3Ctext x='32' y='47' font-family='Impact,sans-serif' font-size='44' text-anchor='middle' fill='%23ffe14d' stroke='%23ff3e9a' stroke-width='2' transform='rotate(-8 32 32)'%3EF%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rubik:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <header class="topbar">
@@ -28,14 +31,24 @@
 
   <!-- ================= Vitrine ================= -->
   <div id="home">
+    <section class="banner-wrap">
+      <div class="banner" id="banner">
+        <h1 class="sr-only">Fliperama: portal de jogos</h1>
+        <img src="assets/banner.webp" width="2000" height="750" alt="Grafite escrito Fliperama, portal de jogos, com controle, fone de ouvido, joystick de fliperama e alienígena pixelado num muro de tijolos" fetchpriority="high">
+        <span class="glint" aria-hidden="true"></span>
+      </div>
+      <span class="drips banner-drips" aria-hidden="true">
+        <i style="left:9%;--h:38px"></i><i style="left:27%;--h:20px;animation-delay:.3s"></i><i style="left:46%;--h:46px;animation-delay:.15s"></i><i style="left:71%;--h:26px;animation-delay:.45s"></i><i style="left:90%;--h:34px;animation-delay:.6s"></i>
+      </span>
+    </section>
+
     <section class="hero">
       <div class="hero-text">
-        <h1>Jogos feitos <em>em casa</em>
-          <span class="drips" aria-hidden="true">
-            <i style="left:12%;--h:34px"></i><i style="left:31%;--h:18px;animation-delay:.3s"></i><i style="left:58%;--h:42px;animation-delay:.15s"></i><i style="left:83%;--h:24px;animation-delay:.45s"></i>
-          </span>
-        </h1>
         <p class="tape">Jogos autorais que rodam direto no navegador. Sem instalar nada, sem cadastro: é só clicar e jogar.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#todos" id="see-all">▼ Ver todos os jogos</a>
+          <button class="btn ghost" id="random2">🎲 Me surpreenda</button>
+        </div>
       </div>
       <div id="featured"></div>
     </section>
@@ -72,7 +85,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="games.js?v=5"></script>
+  <script src="games.js?v=6"></script>
   <script>
     const games = window.GAMES || [];
     const moods = window.MOODS || [];
@@ -299,6 +312,20 @@
         $('player').innerHTML = ''; // para o jogo ao voltar
         renderHome();
       }
+    }
+
+    $('see-all').onclick = e => { e.preventDefault(); $('grid-title').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    $('random2').onclick = () => $('random').click();
+
+    // Banner: leve efeito 3D seguindo o mouse (desligado para quem prefere menos movimento)
+    const banner = $('banner');
+    if (matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
+      banner.addEventListener('pointermove', e => {
+        const r = banner.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        banner.style.transform = `perspective(1200px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) scale(1.01)`;
+      });
+      banner.addEventListener('pointerleave', () => banner.style.transform = '');
     }
 
     $('random').onclick = () => {
