@@ -13,12 +13,16 @@
   <meta property="og:locale" content="pt_BR">
   <meta property="og:image" content="https://mecman-22.github.io/Fliperama/assets/banner.webp">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="preload" as="image" href="assets/banner.webp">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23151418'/%3E%3Ctext x='32' y='47' font-family='Impact,sans-serif' font-size='44' text-anchor='middle' fill='%23ffe14d' stroke='%23ff3e9a' stroke-width='2' transform='rotate(-8 32 32)'%3EF%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&family=Rubik:wght@400;600;700&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <div class="site-bg" aria-hidden="true"></div>
@@ -93,12 +97,13 @@
   <footer id="sobre">
     <span class="sig">Fliperama</span>
     <p>Todos os jogos são de autoria própria. Grátis, sem anúncios, sem download e sem cadastro.</p>
-    <p class="foot-small">Favoritos e jogos recentes ficam salvos só no seu navegador.</p>
+    <p class="foot-small">Favoritos, recordes e jogos recentes ficam salvos só no seu navegador.</p>
+    <button class="btn install" id="install" hidden><span aria-hidden="true">📲</span> Instalar o Fliperama</button>
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="games.js?v=10"></script>
+  <script src="games.js?v=11"></script>
   <script>
     const games = window.GAMES || [];
     const moods = window.MOODS || [];
@@ -126,10 +131,27 @@
     }
 
     let toastT;
-    function toast(msg) {
+    function toast(msg, ms = 2200) {
       const t = $('toast'); t.textContent = msg; t.classList.add('show');
-      clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200);
+      clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), ms);
     }
+
+    // ---------- Recordes (lidos do que cada jogo já salva neste navegador) ----------
+    const raw = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+    const mmss = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    const RECORDS = {
+      'coletor-estelar': () => { const b = +raw('coletor-best'); return b ? b + (b === 1 ? ' ponto' : ' pontos') : ''; },
+      'memoria-cores':   () => { const b = +raw('memoria-best'); return b ? 'sequência de ' + b : ''; },
+      'sudoku': () => {
+        const b = raw('sudoku-best') || {}, n = { facil: 'Fácil', medio: 'Médio', dificil: 'Difícil' };
+        return Object.keys(n).filter(k => b[k]).map(k => n[k] + ' em ' + mmss(b[k])).join(' · ');
+      },
+      'jogo-da-velha': () => {
+        const p = raw('velha.perfil'); if (!p || !p.xp) return '';
+        return 'nível ' + (1 + Math.floor(Math.sqrt(p.xp / 40))) + (p.v ? ' · ' + p.v + (p.v === 1 ? ' vitória' : ' vitórias') : '');
+      }
+    };
+    const record = g => { try { return RECORDS[g.id]?.() || ''; } catch (e) { return ''; } };
 
     // ---------- Selos ----------
     const isNew = g => g.added && (Date.now() - new Date(g.added + 'T00:00:00')) / 864e5 <= 30;
@@ -155,6 +177,7 @@
             <h2>${esc(g.title)}</h2>
             <p>${esc(g.description)}</p>
             <div class="tags">${(g.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+            ${record(g) ? `<p class="rec"><span aria-hidden="true">🏆</span> Seu recorde: ${esc(record(g))}</p>` : ''}
             <span class="btn">▶ Jogar</span>
           </div>
         </article>`;
@@ -334,6 +357,7 @@
             <h2>Sobre este jogo</h2>
             <p>${esc(game.description)}</p>
             <dl>
+              ${record(game) ? `<dt>Seu recorde</dt><dd class="rec-dd">🏆 ${esc(record(game))}</dd>` : ''}
               ${game.controls ? `<dt>Controles</dt><dd>${esc(game.controls)}</dd>` : ''}
               ${game.players ? `<dt>Jogadores</dt><dd>${esc(game.players)}</dd>` : ''}
               ${game.devices ? `<dt>Funciona em</dt><dd>${esc(game.devices)}</dd>` : ''}
@@ -369,6 +393,7 @@
     function route() {
       const id = decodeURIComponent(location.hash.slice(1));
       const game = byId(id);
+      if (id && !game && !document.getElementById(id)) { toast('Esse jogo não existe (ou mudou de nome). Escolha outro aqui!', 4000); history.replaceState(null, '', location.pathname + location.search); }
       $('home').hidden = !!game;
       $('player').hidden = !game;
       document.body.classList.toggle('on-game', !!game);
@@ -409,6 +434,21 @@
     });
     addEventListener('hashchange', route);
     route();
+
+    // ---------- Instalar como app ----------
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    let installEvt = null;
+    addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('install').hidden = false; });
+    addEventListener('appinstalled', () => { $('install').hidden = true; toast('📲 Pronto! O Fliperama está na sua tela inicial.'); });
+    if (iOS && !standalone) $('install').hidden = false;
+    $('install').onclick = async () => {
+      if (installEvt) { installEvt.prompt(); await installEvt.userChoice.catch(() => {}); installEvt = null; return; }
+      toast('No iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".', 5000);
+    };
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    }
   </script>
 </body>
 </html>

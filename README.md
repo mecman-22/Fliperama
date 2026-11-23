@@ -49,3 +49,15 @@ e acesse http://localhost:8765.
 
 > Godot 4 com threads exige os cabeçalhos COOP/COEP; no Netlify, crie um arquivo `_headers`.
 > Ou exporte com "Thread Support" desativado.
+
+## App instalável e offline
+
+`manifest.webmanifest` + `sw.js` deixam o site instalável no celular e jogável sem internet.
+Ao publicar mudanças em `style.css`/`games.js`, aumente o `?v=` no `index.html` **e** a constante `V`
+(e a lista `BASE`) no `sw.js`, para que todo mundo receba a versão nova de imediato.
+Ao adicionar um jogo, inclua `games/<id>/index.html` na lista `BASE` para ele funcionar offline.
+
+## Recordes
+
+O portal mostra o recorde de cada jogo lendo o que o próprio jogo salva no `localStorage`
+(veja `RECORDS` no `index.html`). Para um jogo novo, acrescente uma função lá.
