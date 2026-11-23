@@ -72,8 +72,8 @@ Para ligar (grátis):
 
 1. Crie uma conta em https://supabase.com e um projeto novo.
 2. No projeto, abra **SQL Editor**, cole o conteúdo de `banco/supabase.sql` e clique em **Run**.
-3. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public** para `ranking-config.js`.
-   Nunca use a chave `service_role` no site.
+3. Copie a **Project URL** e a **Publishable key** (Project Settings → API Keys) para `ranking-config.js`.
+   Nunca use a **Secret key** (nem a antiga `service_role`) no site.
 4. Aumente o `?v=` do `ranking-config.js` no `index.html` e no `sw.js` e publique.
 
 Enquanto `ranking-config.js` estiver vazio, o site esconde o botão de entrar e o ranking.

@@ -34,7 +34,8 @@
     try {
       r = await fetch(`${base}/rest/v1/rpc/${fn}`, {
         method: 'POST',
-        headers: { apikey: cfg.key, Authorization: 'Bearer ' + cfg.key, 'Content-Type': 'application/json' },
+        // chaves novas (sb_publishable_...) vão só no apikey; as antigas (JWT) também no Authorization
+        headers: Object.assign({ apikey: cfg.key, 'Content-Type': 'application/json' }, /^eyJ/.test(cfg.key) ? { Authorization: 'Bearer ' + cfg.key } : {}),
         body: JSON.stringify(args)
       });
     } catch (e) { throw new Error('SEM_CONEXAO'); }
