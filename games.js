@@ -20,6 +20,20 @@ window.MOODS = [
 
 window.GAMES = [
   {
+    id: "golfe-nuvens",
+    title: "Golfe nas Nuvens",
+    description: "Minigolfe com quebra-cabeça em ilhas flutuantes: o Pipo é a bola! Derrube os bichinhos para abrir o buraco, use ricochetes, setas, portais, tacadas por cima e poderes.",
+    tags: ["Golfe", "Puzzle"],
+    moods: ["pensar", "relaxar", "rapido"],
+    controls: "Arraste para trás e solte (estilingue). Teclado: setas miram e dão força, Espaço taca, L troca o tipo de tacada",
+    devices: "Computador e celular",
+    players: "1 jogador",
+    color: "#7ed957",
+    emoji: "⛳",
+    featured: true,
+    added: "2026-11-23"
+  },
+  {
     id: "mira-afiada",
     title: "Mira Afiada",
     description: "Treino de mira e reflexo para quem joga tiro: Rajada, Flick, Rastreio e teste de Reação. Mira personalizável e sensibilidade com o mouse travado.",
