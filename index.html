@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fliperama</title>
   <meta name="description" content="Jogos autorais para jogar direto no navegador.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rubik:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,12 +19,17 @@
   <!-- Vitrine -->
   <div id="home">
     <section class="hero">
-      <h1>Jogos feitos em casa 🎮</h1>
-      <p>Uma coleção de jogos autorais que rodam direto no navegador. Sem instalar nada — é só clicar e jogar.</p>
+      <h1>Jogos feitos <em>em casa</em>
+        <span class="drips" aria-hidden="true">
+          <i style="left:12%;--h:34px"></i><i style="left:31%;--h:18px;animation-delay:.3s"></i><i style="left:58%;--h:42px;animation-delay:.15s"></i><i style="left:83%;--h:24px;animation-delay:.45s"></i>
+        </span>
+      </h1>
+      <br>
+      <p>Jogos autorais que rodam direto no navegador. Sem instalar nada: é só clicar e jogar.</p>
     </section>
     <div class="toolbar">
       <input class="search" id="search" type="search" placeholder="Buscar jogo..." aria-label="Buscar jogo">
-      <div id="filters" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      <div id="filters" class="filters"></div>
     </div>
     <main class="grid" id="grid"></main>
   </div>
@@ -29,7 +37,10 @@
   <!-- Jogo -->
   <div class="player-wrap" id="player" hidden></div>
 
-  <footer>Feito com ❤️ — todos os jogos são de autoria própria.</footer>
+  <footer>
+    <span class="sig">Fliperama</span>
+    <p>Todos os jogos são de autoria própria.</p>
+  </footer>
 
   <script src="games.js"></script>
   <script>
@@ -80,7 +91,7 @@
       p.innerHTML = `
         <div class="player-head">
           <h1>${esc(game.emoji || '')} ${esc(game.title)}</h1>
-          <div style="display:flex;gap:8px">
+          <div class="player-actions">
             <button class="btn ghost" id="reload">↻ Reiniciar</button>
             <button class="btn" id="fs">⛶ Tela cheia</button>
           </div>
@@ -115,7 +126,7 @@
         scrollTo(0, 0);
       } else {
         document.title = 'Fliperama';
-        $('top-right').innerHTML = `<span style="color:var(--muted);font-size:.9rem">${games.length} ${games.length === 1 ? 'jogo' : 'jogos'}</span>`;
+        $('top-right').innerHTML = `<span class="count">${games.length} ${games.length === 1 ? 'jogo' : 'jogos'}</span>`;
         $('player').innerHTML = ''; // para o jogo ao voltar
       }
     }
