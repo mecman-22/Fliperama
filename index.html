@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&family=Rubik:wght@400;600;700&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
   <div class="site-bg" aria-hidden="true"></div>
@@ -36,6 +36,7 @@
       <button class="menu-item active" data-go="inicio"><span aria-hidden="true">🏠</span> Início</button>
       <button class="menu-item" data-go="jogos"><span aria-hidden="true">🎮</span> Jogos</button>
       <button class="menu-item" data-go="climas"><span aria-hidden="true">⭐</span> Destaques</button>
+      <button class="menu-item" data-go="ranking" hidden><span aria-hidden="true">🏆</span> Ranking</button>
       <button class="menu-item" data-go="favoritos"><span aria-hidden="true">💛</span> Favoritos</button>
       <button class="menu-item" data-go="sobre"><span aria-hidden="true">ℹ️</span> Sobre</button>
     </nav>
@@ -43,6 +44,7 @@
       <span aria-hidden="true">🔍</span>
       <input id="search" type="search" placeholder="Buscar jogos..." aria-label="Buscar jogos" autocomplete="off">
     </label>
+    <button class="account" id="account" title="Sua conta do ranking" hidden><span aria-hidden="true">👤</span> <span id="account-name">Entrar</span></button>
     <span id="top-right"></span>
   </header>
 
@@ -89,6 +91,15 @@
       <button class="chip" id="clear" hidden>✕ Limpar filtros</button>
     </div>
     <main class="grid" id="grid"></main>
+
+    <section class="shelf ranking" id="ranking" hidden>
+      <h2 class="section-title">Ranking</h2>
+      <div class="rank-tabs" id="rank-tabs" role="tablist"></div>
+      <div class="rank-board">
+        <ol class="rank-list" id="rank-list"></ol>
+        <div class="rank-me" id="rank-me"></div>
+      </div>
+    </section>
   </div>
 
   <!-- ================= Jogo ================= -->
@@ -97,13 +108,39 @@
   <footer id="sobre">
     <span class="sig">Fliperama</span>
     <p>Todos os jogos são de autoria própria. Grátis, sem anúncios, sem download e sem cadastro.</p>
-    <p class="foot-small">Favoritos, recordes e jogos recentes ficam salvos só no seu navegador.</p>
+    <p class="foot-small">Favoritos, recordes e jogos recentes ficam salvos no seu navegador. Para levar seu progresso para outro aparelho e entrar no ranking, use um nick.</p>
     <button class="btn install" id="install" hidden><span aria-hidden="true">📲</span> Instalar o Fliperama</button>
   </footer>
 
+  <dialog class="login-dlg" id="login-dlg">
+    <form method="dialog" id="login-form" class="login-out">
+      <h2>Entrar no ranking</h2>
+      <p>Escolha um nick e um PIN. Se o nick ainda não existir, ele é criado na hora. Em outro aparelho, use o mesmo nick e PIN para continuar de onde parou.</p>
+      <label>Nick<input id="l-nick" maxlength="16" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="ex.: Pixo_22" required></label>
+      <label>PIN (4 a 8 números)<input id="l-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="current-password" placeholder="••••" required></label>
+      <p class="l-err" id="l-err" role="alert"></p>
+      <div class="l-btns">
+        <button class="btn" type="submit" id="l-go">Entrar</button>
+        <button class="btn ghost" type="button" data-close>Cancelar</button>
+      </div>
+      <p class="foot-small">Não use uma senha de verdade: o PIN só protege seu nick aqui no Fliperama.</p>
+    </form>
+    <div class="login-in">
+      <h2>Oi, <span id="l-name"></span>!</h2>
+      <p>Seus recordes, moedas e melhorias são salvos na nuvem sozinhos. Entre com o mesmo nick e PIN em outro aparelho para continuar.</p>
+      <div class="l-btns">
+        <button class="btn" type="button" id="l-sync">↻ Sincronizar agora</button>
+        <button class="btn ghost" type="button" id="l-out">Sair</button>
+        <button class="btn ghost" type="button" data-close>Fechar</button>
+      </div>
+    </div>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="games.js?v=12"></script>
+  <script src="games.js?v=13"></script>
+  <script src="ranking-config.js?v=13"></script>
+  <script src="cloud.js?v=13"></script>
   <script>
     const games = window.GAMES || [];
     const moods = window.MOODS || [];
@@ -296,7 +333,7 @@
     });
 
     // ---------- Menu ----------
-    const sections = { inicio: 'inicio', jogos: 'grid-title', climas: 'climas', sobre: 'sobre' };
+    const sections = { inicio: 'inicio', jogos: 'grid-title', climas: 'climas', ranking: 'ranking', sobre: 'sobre' };
     document.querySelectorAll('.menu-item').forEach(b => b.addEventListener('click', () => {
       const go = b.dataset.go;
       const doScroll = () => {
@@ -307,7 +344,7 @@
       if ($('home').hidden && go !== 'sobre') { location.hash = ''; setTimeout(doScroll, 50); } else doScroll();
     }));
     // destaca no menu a seção que está na tela
-    const spy = [['inicio', 'inicio'], ['climas', 'climas'], ['jogos', 'jogos']];
+    const spy = [['inicio', 'inicio'], ['climas', 'climas'], ['jogos', 'jogos'], ['ranking', 'ranking']];
     const spyObs = new IntersectionObserver(entries => {
       entries.forEach(en => {
         if (!en.isIntersecting || $('home').hidden) return;
@@ -367,6 +404,10 @@
               ${date ? `<dt>No Fliperama desde</dt><dd>${esc(date)}</dd>` : ''}
             </dl>
           </section>
+          ${Cloud.ready && rankable(game.id) ? `<section class="info rank-mini">
+            <h2>🏆 Top 5</h2><ol class="rank-list" id="rank-mini"><li class="rank-empty">Carregando...</li></ol>
+            <div class="rank-me" id="rank-mini-me"></div>
+          </section>` : ''}
           <section class="more">
             <h2 class="section-title">Jogue também</h2>
             <div class="more-grid">${related(game).map(mini).join('')}</div>
@@ -388,6 +429,7 @@
         catch (e) { prompt('Copie o link:', url); }
       };
       markPlayed(game.id);
+      if (Cloud.ready && rankable(game.id)) loadRanking(game.id, 'rank-mini', 'rank-mini-me', 5);
     }
 
     // ---------- Rotas (#id-do-jogo) ----------
@@ -410,6 +452,7 @@
         $('top-right').innerHTML = '';
         $('player').innerHTML = ''; // para o jogo ao voltar
         renderHome();
+        if (Cloud.session()) Cloud.sync().then(ok => { if (ok) { renderGrid(); renderRanking(); } });
       }
     }
 
@@ -435,6 +478,92 @@
     });
     addEventListener('hashchange', route);
     route();
+
+    // ---------- Ranking online ----------
+    function rankable(id) { return !!(Cloud.GAMES[id] && Cloud.GAMES[id].rank !== false && byId(id)); }
+    const rankGames = games.filter(g => rankable(g.id));
+    let rankTab = rankGames[0] && rankGames[0].id;
+    function fmtPts(id, n) { return Number(n).toLocaleString('pt-BR') + ' ' + Cloud.GAMES[id].unidade; }
+    function medal(p) { return ['🥇', '🥈', '🥉'][p - 1] || p + 'º'; }
+
+    async function loadRanking(id, listId, meId, limit) {
+      if (!$(listId)) return;
+      try {
+        const [rows, mine] = await Promise.all([Cloud.ranking(id, limit), Cloud.minhaPosicao(id).catch(() => null)]);
+        const list = $(listId), me = $(meId);
+        if (!list) return;
+        const s = Cloud.session();
+        list.innerHTML = rows && rows.length
+          ? rows.map(r => `<li class="${s && r.nick === s.nick ? 'me' : ''}"><span class="pos">${medal(+r.posicao)}</span><span class="nick">${esc(r.nick)}</span><span class="pts">${esc(fmtPts(id, r.pontos))}</span></li>`).join('')
+          : '<li class="rank-empty">Ninguém no ranking ainda. Seja o primeiro!</li>';
+        if (me) {
+          if (!s) me.innerHTML = '<button class="chip" data-login>👤 Entre com um nick para aparecer aqui</button>';
+          else if (mine) me.textContent = `Você (${mine.nick}): ${mine.posicao}º lugar com ${fmtPts(id, mine.pontos)}`;
+          else me.textContent = `Você (${s.nick}) ainda não tem pontos neste jogo. Bora jogar!`;
+        }
+      } catch (e) {
+        if ($(listId)) $(listId).innerHTML = `<li class="rank-empty">${esc(Cloud.mensagem(e))}</li>`;
+      }
+    }
+    function renderRanking() {
+      if (!Cloud.ready || !rankTab || $('home').hidden) return;
+      $('rank-tabs').innerHTML = rankGames.map(g => `<button class="chip${g.id === rankTab ? ' active' : ''}" role="tab" aria-selected="${g.id === rankTab}" data-rank="${esc(g.id)}">${esc(g.emoji || '')} ${esc(g.title)}</button>`).join('');
+      $('rank-list').innerHTML = '<li class="rank-empty">Carregando...</li>';
+      loadRanking(rankTab, 'rank-list', 'rank-me', 20);
+    }
+    $('rank-tabs').addEventListener('click', e => { const b = e.target.closest('[data-rank]'); if (b) { rankTab = b.dataset.rank; renderRanking(); } });
+
+    // Conta (nick + PIN)
+    const dlg = $('login-dlg');
+    function paintAccount() {
+      const s = Cloud.session();
+      $('account-name').textContent = s ? s.nick : 'Entrar';
+      $('account').classList.toggle('on', !!s);
+      dlg.classList.toggle('logged', !!s);
+      $('l-name').textContent = s ? s.nick : '';
+    }
+    function openLogin() {
+      paintAccount(); $('l-err').textContent = '';
+      if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+      if (!Cloud.session()) setTimeout(() => $('l-nick').focus(), 30);
+    }
+    const closeLogin = () => { if (dlg.open) { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); } };
+    dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close]')) closeLogin(); });
+    document.addEventListener('click', e => { if (e.target.closest('[data-login]')) openLogin(); });
+    $('account').onclick = openLogin;
+    $('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const nick = $('l-nick').value.trim(), pin = $('l-pin').value.trim();
+      if (!/^[A-Za-z0-9_]{3,16}$/.test(nick)) { $('l-err').textContent = Cloud.mensagem({ message: 'NICK_INVALIDO' }); return; }
+      if (!/^[0-9]{4,8}$/.test(pin)) { $('l-err').textContent = Cloud.mensagem({ message: 'PIN_INVALIDO' }); return; }
+      $('l-go').disabled = true; $('l-go').textContent = 'Entrando...'; $('l-err').textContent = '';
+      try {
+        const r = await Cloud.entrar(nick, pin);
+        $('l-pin').value = '';
+        closeLogin();
+        toast(r.novo ? `🎉 Bem-vindo, ${r.nick}! Seu progresso agora fica salvo na nuvem.` : `👋 Oi de novo, ${r.nick}! Progresso carregado.`, 4000);
+        if ($('home').hidden) route(); else { renderHome(); renderRanking(); }
+      } catch (err) { $('l-err').textContent = Cloud.mensagem(err); }
+      finally { $('l-go').disabled = false; $('l-go').textContent = 'Entrar'; }
+    });
+    $('l-sync').onclick = async () => {
+      $('l-sync').disabled = true;
+      try { await Cloud.puxar(); await Cloud.sync(); toast('☁️ Tudo sincronizado!'); if (!$('home').hidden) { renderHome(); renderRanking(); } }
+      catch (e) { toast(Cloud.mensagem(e), 4000); }
+      finally { $('l-sync').disabled = false; }
+    };
+    $('l-out').onclick = async () => { await Cloud.sair(); closeLogin(); toast('Você saiu. O progresso continua salvo neste aparelho.', 3500); renderRanking(); };
+    Cloud.onChange(paintAccount);
+
+    if (Cloud.ready) {
+      $('account').hidden = false;
+      $('ranking').hidden = false;
+      document.querySelector('[data-go="ranking"]').hidden = false;
+      paintAccount();
+      renderRanking();
+      addEventListener('visibilitychange', () => { if (document.hidden) Cloud.sync(); });
+      setInterval(() => { if (!document.hidden) Cloud.sync(); }, 30000);
+    }
 
     // ---------- Instalar como app ----------
     const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;

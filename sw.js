@@ -1,8 +1,8 @@
 // Deixa o Fliperama instalável e jogável sem internet.
 // Páginas: tenta a rede primeiro (para ver sempre a versão nova) e usa o cache se estiver offline.
 // Imagens, fontes e demais arquivos: serve do cache e atualiza em segundo plano.
-const V = 'fliperama-v12';
-const BASE = ['./', 'index.html', 'style.css?v=12', 'games.js?v=12', 'manifest.webmanifest',
+const V = 'fliperama-v13';
+const BASE = ['./', 'index.html', 'style.css?v=13', 'games.js?v=13', 'ranking-config.js?v=13', 'cloud.js?v=13', 'manifest.webmanifest',
   'assets/banner.webp', 'assets/icon-192.png', 'assets/icon-512.png',
   'games/coletor-estelar/index.html', 'games/memoria-cores/index.html', 'games/sudoku/index.html',
   'games/role-neon/index.html'];

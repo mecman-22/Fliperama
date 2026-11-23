@@ -61,3 +61,21 @@ Ao adicionar um jogo, inclua `games/<id>/index.html` na lista `BASE` para ele fu
 
 O portal mostra o recorde de cada jogo lendo o que o próprio jogo salva no `localStorage`
 (veja `RECORDS` no `index.html`). Para um jogo novo, acrescente uma função lá.
+
+## Ranking online e progresso na nuvem (nick + PIN)
+
+O jogador entra com um **nick** e um **PIN** (4 a 8 números). O portal envia para a nuvem o que os
+jogos já salvam no navegador (recordes, moedas, melhorias) e traz de volta em outro aparelho.
+O ranking usa a melhor pontuação de cada jogo (definida em `GAMES` no `cloud.js`).
+
+Para ligar (grátis):
+
+1. Crie uma conta em https://supabase.com e um projeto novo.
+2. No projeto, abra **SQL Editor**, cole o conteúdo de `banco/supabase.sql` e clique em **Run**.
+3. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public** para `ranking-config.js`.
+   Nunca use a chave `service_role` no site.
+4. Aumente o `?v=` do `ranking-config.js` no `index.html` e no `sw.js` e publique.
+
+Enquanto `ranking-config.js` estiver vazio, o site esconde o botão de entrar e o ranking.
+Observação: como os jogos rodam no navegador, as pontuações são enviadas pelo próprio jogador;
+o banco impede que alguém mexa no nick ou no progresso de outra pessoa, mas não detecta trapaça.
