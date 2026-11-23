@@ -4,133 +4,311 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fliperama</title>
-  <meta name="description" content="Jogos autorais para jogar direto no navegador.">
+  <meta name="description" content="Jogos autorais grátis para jogar direto no navegador, no computador ou no celular. Sem instalar nada.">
+  <meta name="theme-color" content="#121115">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Fliperama: jogos feitos em casa">
+  <meta property="og:description" content="Jogos autorais grátis para jogar direto no navegador, no computador ou no celular.">
+  <meta property="og:url" content="https://mecman-22.github.io/Fliperama/">
+  <meta property="og:locale" content="pt_BR">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23151418'/%3E%3Ctext x='32' y='47' font-family='Impact,sans-serif' font-size='44' text-anchor='middle' fill='%23ffe14d' stroke='%23ff3e9a' stroke-width='2' transform='rotate(-8 32 32)'%3EF%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rubik:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
   <header class="topbar">
     <a class="logo" href="#">Fliper<span>ama</span></a>
-    <span id="top-right"></span>
+    <div class="top-actions">
+      <button class="btn ghost small" id="random" title="Abre um jogo aleatório">🎲 Surpresa</button>
+      <span id="top-right"></span>
+    </div>
   </header>
 
-  <!-- Vitrine -->
+  <!-- ================= Vitrine ================= -->
   <div id="home">
     <section class="hero">
-      <h1>Jogos feitos <em>em casa</em>
-        <span class="drips" aria-hidden="true">
-          <i style="left:12%;--h:34px"></i><i style="left:31%;--h:18px;animation-delay:.3s"></i><i style="left:58%;--h:42px;animation-delay:.15s"></i><i style="left:83%;--h:24px;animation-delay:.45s"></i>
-        </span>
-      </h1>
-      <br>
-      <p>Jogos autorais que rodam direto no navegador. Sem instalar nada: é só clicar e jogar.</p>
+      <div class="hero-text">
+        <h1>Jogos feitos <em>em casa</em>
+          <span class="drips" aria-hidden="true">
+            <i style="left:12%;--h:34px"></i><i style="left:31%;--h:18px;animation-delay:.3s"></i><i style="left:58%;--h:42px;animation-delay:.15s"></i><i style="left:83%;--h:24px;animation-delay:.45s"></i>
+          </span>
+        </h1>
+        <p class="tape">Jogos autorais que rodam direto no navegador. Sem instalar nada, sem cadastro: é só clicar e jogar.</p>
+      </div>
+      <div id="featured"></div>
     </section>
+
+    <section class="shelf" id="continue" hidden>
+      <h2 class="section-title">Continue jogando</h2>
+      <div class="shelf-row" id="continue-row"></div>
+    </section>
+
+    <section class="shelf">
+      <h2 class="section-title">Escolha pelo clima</h2>
+      <div class="moods" id="moods"></div>
+    </section>
+
     <div class="toolbar">
-      <input class="search" id="search" type="search" placeholder="Buscar jogo..." aria-label="Buscar jogo">
+      <input class="search" id="search" type="search" placeholder="Buscar jogo...  (atalho: /)" aria-label="Buscar jogo">
       <div id="filters" class="filters"></div>
+    </div>
+
+    <div class="grid-head">
+      <h2 class="section-title" id="grid-title">Todos os jogos</h2>
+      <button class="chip" id="clear" hidden>✕ Limpar filtros</button>
     </div>
     <main class="grid" id="grid"></main>
   </div>
 
-  <!-- Jogo -->
+  <!-- ================= Jogo ================= -->
   <div class="player-wrap" id="player" hidden></div>
 
   <footer>
     <span class="sig">Fliperama</span>
-    <p>Todos os jogos são de autoria própria.</p>
+    <p>Todos os jogos são de autoria própria. Grátis, sem anúncios e sem cadastro.</p>
   </footer>
 
-  <script src="games.js?v=4"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="games.js?v=5"></script>
   <script>
     const games = window.GAMES || [];
+    const moods = window.MOODS || [];
     const $ = id => document.getElementById(id);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    let activeTag = 'Todos';
+    const byId = id => games.find(g => g.id === id);
 
-    // ---------- Vitrine ----------
-    const tags = ['Todos', ...new Set(games.flatMap(g => g.tags || []))];
-    tags.forEach(t => {
-      const b = document.createElement('button');
-      b.className = 'chip' + (t === activeTag ? ' active' : '');
-      b.textContent = t;
-      b.onclick = () => {
-        activeTag = t;
-        [...$('filters').children].forEach(c => c.classList.toggle('active', c === b));
-        renderGrid();
-      };
-      $('filters').appendChild(b);
-    });
+    // ---------- Memória local (favoritos e recentes ficam só neste navegador) ----------
+    const store = {
+      get(k, d) { try { const v = JSON.parse(localStorage.getItem('fliperama.' + k)); return v ?? d; } catch (e) { return d; } },
+      set(k, v) { try { localStorage.setItem('fliperama.' + k, JSON.stringify(v)); } catch (e) {} }
+    };
+    let favs = store.get('favoritos', []).filter(byId);
+    let recents = store.get('recentes', []).filter(byId);
+    const isFav = id => favs.includes(id);
+    function toggleFav(id) {
+      favs = isFav(id) ? favs.filter(x => x !== id) : [...favs, id];
+      store.set('favoritos', favs);
+      toast(isFav(id) ? '★ Salvo nos favoritos' : 'Removido dos favoritos');
+    }
+    function markPlayed(id) {
+      recents = [id, ...recents.filter(x => x !== id)].slice(0, 8);
+      store.set('recentes', recents);
+    }
 
-    function renderGrid() {
-      const q = $('search').value.trim().toLowerCase();
-      const list = games.filter(g =>
-        (activeTag === 'Todos' || (g.tags || []).includes(activeTag)) &&
-        (!q || (g.title + ' ' + g.description).toLowerCase().includes(q))
-      );
-      $('grid').innerHTML = list.length ? list.map(g => `
-        <a class="card" href="#${encodeURIComponent(g.id)}" style="--c:${esc(g.color || '#7c5cff')}">
-          <div class="thumb">${g.thumbnail ? `<img src="${esc(g.thumbnail)}" alt="">` : esc(g.emoji || '🎮')}</div>
+    let toastT;
+    function toast(msg) {
+      const t = $('toast'); t.textContent = msg; t.classList.add('show');
+      clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // ---------- Selos ----------
+    const isNew = g => g.added && (Date.now() - new Date(g.added + 'T00:00:00')) / 864e5 <= 30;
+    const mobileOk = g => /celular/i.test(g.devices || '');
+    const isOnline = g => (g.tags || []).includes('Online');
+    function badges(g) {
+      return `<div class="badges">
+        ${isNew(g) ? '<span class="badge new">NOVO</span>' : ''}
+        ${isOnline(g) ? '<span class="badge" title="Tem modo online">🌐 Online</span>' : ''}
+        ${mobileOk(g) ? '<span class="badge" title="Funciona no celular">📱</span>' : ''}
+      </div>`;
+    }
+    const thumb = g => g.thumbnail ? `<img src="${esc(g.thumbnail)}" alt="" loading="lazy">` : `<span class="emoji">${esc(g.emoji || '🎮')}</span>`;
+
+    function card(g) {
+      return `
+        <article class="card" style="--c:${esc(g.color || '#ff3e9a')}">
+          <a class="card-link" href="#${encodeURIComponent(g.id)}" aria-label="Jogar ${esc(g.title)}"></a>
+          <div class="thumb">${thumb(g)}${badges(g)}</div>
+          <button class="fav${isFav(g.id) ? ' on' : ''}" data-fav="${esc(g.id)}" aria-pressed="${isFav(g.id)}" title="Favoritar">★</button>
           <div class="card-body">
             <h2>${esc(g.title)}</h2>
             <p>${esc(g.description)}</p>
             <div class="tags">${(g.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
             <span class="btn">▶ Jogar</span>
           </div>
-        </a>`).join('') : '<div class="empty">Nenhum jogo encontrado.</div>';
+        </article>`;
     }
-    $('search').addEventListener('input', renderGrid);
-    renderGrid();
+    function mini(g) {
+      return `<a class="mini" href="#${encodeURIComponent(g.id)}" style="--c:${esc(g.color || '#ff3e9a')}">
+        <span class="mini-thumb">${thumb(g)}</span><span class="mini-title">${esc(g.title)}</span></a>`;
+    }
 
-    // ---------- Player ----------
+    // ---------- Filtros ----------
+    const F = { mood: null, tag: 'Todos', favOnly: false };
+
+    moods.forEach(m => {
+      const b = document.createElement('button');
+      b.className = 'mood'; b.dataset.mood = m.id;
+      b.style.setProperty('--m', m.color);
+      const n = games.filter(g => (g.moods || []).includes(m.id)).length;
+      b.innerHTML = `<span class="mood-emoji">${m.emoji}</span><b>${esc(m.label)}</b><small>${esc(m.desc)} · ${n} ${n === 1 ? 'jogo' : 'jogos'}</small>`;
+      b.onclick = () => { F.mood = F.mood === m.id ? null : m.id; renderGrid(true); };
+      $('moods').appendChild(b);
+    });
+
+    const tags = ['Todos', ...new Set(games.flatMap(g => g.tags || []))];
+    tags.forEach(t => {
+      const b = document.createElement('button');
+      b.className = 'chip'; b.dataset.tag = t; b.textContent = t;
+      b.onclick = () => { F.tag = t; renderGrid(); };
+      $('filters').appendChild(b);
+    });
+    const favChip = document.createElement('button');
+    favChip.className = 'chip fav-chip'; favChip.textContent = '★ Favoritos';
+    favChip.onclick = () => { F.favOnly = !F.favOnly; renderGrid(); };
+    $('filters').appendChild(favChip);
+
+    $('clear').onclick = () => { F.mood = null; F.tag = 'Todos'; F.favOnly = false; $('search').value = ''; renderGrid(); };
+
+    function renderGrid(scroll) {
+      const q = $('search').value.trim().toLowerCase();
+      const list = games.filter(g =>
+        (!F.mood || (g.moods || []).includes(F.mood)) &&
+        (F.tag === 'Todos' || (g.tags || []).includes(F.tag)) &&
+        (!F.favOnly || isFav(g.id)) &&
+        (!q || [g.title, g.description, ...(g.tags || [])].join(' ').toLowerCase().includes(q))
+      );
+      document.querySelectorAll('.mood').forEach(b => b.classList.toggle('active', b.dataset.mood === F.mood));
+      document.querySelectorAll('.chip[data-tag]').forEach(b => b.classList.toggle('active', b.dataset.tag === F.tag));
+      favChip.classList.toggle('active', F.favOnly);
+
+      const mood = moods.find(m => m.id === F.mood);
+      const parts = [mood ? mood.label : null, F.tag !== 'Todos' ? F.tag : null, F.favOnly ? 'Favoritos' : null, q ? `"${q}"` : null].filter(Boolean);
+      $('grid-title').textContent = (parts.length ? parts.join(' · ') : 'Todos os jogos') + ` (${list.length})`;
+      $('clear').hidden = !parts.length;
+
+      let empty = 'Nenhum jogo encontrado.';
+      if (F.favOnly && !favs.length) empty = 'Você ainda não tem favoritos. Toque na ★ de um jogo para guardar aqui.';
+      $('grid').innerHTML = list.length ? list.map(card).join('') : `<div class="empty">${empty}</div>`;
+      if (scroll) $('grid-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    $('search').addEventListener('input', () => renderGrid());
+
+    // Favoritar direto do card (o card inteiro é um link; a estrela fica por cima)
+    document.addEventListener('click', e => {
+      const b = e.target.closest('[data-fav]');
+      if (!b) return;
+      e.preventDefault();
+      toggleFav(b.dataset.fav);
+      document.querySelectorAll(`[data-fav="${CSS.escape(b.dataset.fav)}"]`).forEach(x => {
+        x.classList.toggle('on', isFav(b.dataset.fav)); x.setAttribute('aria-pressed', isFav(b.dataset.fav));
+      });
+      if (F.favOnly) renderGrid();
+    });
+
+    function renderHome() {
+      const f = games.find(g => g.featured) || games[0];
+      $('featured').innerHTML = f ? `
+        <article class="featured" style="--c:${esc(f.color || '#ff3e9a')}">
+          <span class="featured-label">Em destaque</span>
+          <a class="card-link" href="#${encodeURIComponent(f.id)}" aria-label="Jogar ${esc(f.title)}"></a>
+          <div class="thumb">${thumb(f)}${badges(f)}</div>
+          <div class="featured-body">
+            <h2>${esc(f.title)}</h2>
+            <p>${esc(f.description)}</p>
+            <span class="btn">▶ Jogar agora</span>
+          </div>
+        </article>` : '';
+      const rec = recents.map(byId).filter(Boolean);
+      $('continue').hidden = !rec.length;
+      $('continue-row').innerHTML = rec.map(mini).join('');
+      renderGrid();
+    }
+
+    // ---------- Página do jogo ----------
+    function related(game) {
+      const score = g => (g.tags || []).filter(t => (game.tags || []).includes(t)).length * 2
+                       + (g.moods || []).filter(m => (game.moods || []).includes(m)).length;
+      return games.filter(g => g.id !== game.id).sort((a, b) => score(b) - score(a)).slice(0, 4);
+    }
+
     function showPlayer(game) {
       const src = game.url || `games/${game.id}/index.html`;
       const p = $('player');
-      p.style.setProperty('--c', game.color || '#7c5cff');
+      p.style.setProperty('--c', game.color || '#ff3e9a');
       if (game.ratio) p.style.setProperty('--ratio', game.ratio); else p.style.removeProperty('--ratio');
+      const moodNames = (game.moods || []).map(id => moods.find(m => m.id === id)).filter(Boolean);
+      const date = game.added ? new Date(game.added + 'T00:00:00').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : '';
       p.innerHTML = `
         <div class="player-head">
           <h1>${esc(game.emoji || '')} ${esc(game.title)}</h1>
           <div class="player-actions">
+            <button class="btn ghost fav-btn${isFav(game.id) ? ' on' : ''}" data-fav="${esc(game.id)}" aria-pressed="${isFav(game.id)}">★ Favorito</button>
+            <button class="btn ghost" id="share">🔗 Compartilhar</button>
             <button class="btn ghost" id="reload">↻ Reiniciar</button>
             <button class="btn" id="fs">⛶ Tela cheia</button>
           </div>
         </div>
         <div class="frame-box" id="box">
+          <div class="loader" id="loader"><span class="can">🎨</span><b>Preparando a tinta...</b></div>
           <iframe id="frame" src="${esc(src)}" title="${esc(game.title)}" allow="fullscreen; gamepad; autoplay" allowfullscreen></iframe>
         </div>
-        <div class="info">
-          <p>${esc(game.description)}</p>
-          ${game.controls ? `<p><strong>Controles:</strong> ${esc(game.controls)}</p>` : ''}
+        <div class="below">
+          <section class="info">
+            <h2>Sobre este jogo</h2>
+            <p>${esc(game.description)}</p>
+            <dl>
+              ${game.controls ? `<dt>Controles</dt><dd>${esc(game.controls)}</dd>` : ''}
+              ${game.players ? `<dt>Jogadores</dt><dd>${esc(game.players)}</dd>` : ''}
+              ${game.devices ? `<dt>Funciona em</dt><dd>${esc(game.devices)}</dd>` : ''}
+              ${(game.tags || []).length ? `<dt>Gênero</dt><dd>${game.tags.map(esc).join(', ')}</dd>` : ''}
+              ${moodNames.length ? `<dt>Clima</dt><dd>${moodNames.map(m => m.emoji + ' ' + esc(m.label)).join(' · ')}</dd>` : ''}
+              ${date ? `<dt>No Fliperama desde</dt><dd>${esc(date)}</dd>` : ''}
+            </dl>
+          </section>
+          <section class="more">
+            <h2 class="section-title">Jogue também</h2>
+            <div class="more-grid">${related(game).map(mini).join('')}</div>
+          </section>
         </div>`;
       const frame = $('frame');
-      frame.addEventListener('load', () => frame.focus());
-      $('reload').onclick = () => { frame.src = 'about:blank'; setTimeout(() => frame.src = src, 30); };
+      frame.addEventListener('load', () => { $('loader').classList.add('done'); frame.focus(); });
+      $('reload').onclick = () => { $('loader').classList.remove('done'); frame.src = 'about:blank'; setTimeout(() => frame.src = src, 30); };
       $('fs').onclick = () => {
         const box = $('box'), req = box.requestFullscreen || box.webkitRequestFullscreen;
         if (req) Promise.resolve(req.call(box)).catch(() => {});
         frame.focus();
       };
+      $('share').onclick = async () => {
+        const url = location.href.split('#')[0].split('?')[0] + '#' + game.id;
+        const data = { title: game.title + ' no Fliperama', text: game.description, url };
+        if (navigator.share) { try { await navigator.share(data); return; } catch (e) { if (e.name === 'AbortError') return; } }
+        try { await navigator.clipboard.writeText(url); toast('🔗 Link copiado! É só colar e mandar.'); }
+        catch (e) { prompt('Copie o link:', url); }
+      };
+      markPlayed(game.id);
     }
 
     // ---------- Rotas (#id-do-jogo) ----------
     function route() {
       const id = decodeURIComponent(location.hash.slice(1));
-      const game = games.find(g => g.id === id);
+      const game = byId(id);
       $('home').hidden = !!game;
       $('player').hidden = !game;
       if (game) {
         document.title = game.title + ' — Fliperama';
-        $('top-right').innerHTML = '<a class="btn ghost" href="#">← Todos os jogos</a>';
+        $('top-right').innerHTML = '<a class="btn ghost small" href="#">← Todos os jogos</a>';
         showPlayer(game);
         scrollTo(0, 0);
       } else {
         document.title = 'Fliperama';
         $('top-right').innerHTML = `<span class="count">${games.length} ${games.length === 1 ? 'jogo' : 'jogos'}</span>`;
         $('player').innerHTML = ''; // para o jogo ao voltar
+        renderHome();
       }
     }
+
+    $('random').onclick = () => {
+      const current = decodeURIComponent(location.hash.slice(1));
+      const pool = games.filter(g => g.id !== current);
+      if (pool.length) location.hash = pool[Math.floor(Math.random() * pool.length)].id;
+    };
+    addEventListener('keydown', e => {
+      if (e.key === '/' && !$('home').hidden && document.activeElement !== $('search')) { e.preventDefault(); $('search').focus(); }
+    });
     addEventListener('hashchange', route);
     route();
   </script>
