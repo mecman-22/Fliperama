@@ -32,7 +32,6 @@ body {
   background-color: var(--wall);
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='48'%3E%3Cpath d='M0 1h120M0 25h120M1 0v24M61 24v24' fill='none' stroke='%23000' stroke-opacity='.4' stroke-width='2.5'/%3E%3C/svg%3E"),
     radial-gradient(ellipse at 50% 0%, #34313b 0%, var(--wall) 60%, var(--wall-dark) 100%);
   background-attachment: fixed;
   overflow-x: hidden;
@@ -727,4 +726,36 @@ footer .foot-small { font-size: .85rem; opacity: .8; margin: 4px 0 0; }
   .nav-search { flex: 1 1 0; padding: 5px 12px; }
   body.on-game .menu { display: none; }
   body.on-game #top-right { order: 3; }
+}
+
+/* =====================================================================
+   Sem tijolos: a arte do banner de ponta a ponta e espalhada pelo fundo
+   ===================================================================== */
+/* fundo do site inteiro: a própria arte, ampliada, desfocada e escurecida */
+.site-bg {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background: url("assets/banner.webp") center top / cover no-repeat;
+  filter: blur(22px) saturate(1.35) brightness(.32);
+  transform: scale(1.15);
+}
+body { background-color: #0d0c11; }
+body::before { opacity: .55; }
+
+/* banner ocupando toda a largura da tela, sem margens nem bordas laterais desbotadas */
+.hero2 { max-width: none; }
+.hero-art {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 56%, transparent 78%);
+          mask-image: linear-gradient(to bottom, #000 0, #000 56%, transparent 78%);
+}
+.hero-content { max-width: 1440px; margin-top: clamp(-320px, -16vw, -60px); }
+.splat-free { right: 2.5%; top: 20vw; }
+.splat-dl { right: 1%; top: 29vw; }
+@media (max-width: 860px) { .hero-content { margin-top: -11vw; } }
+@media (max-width: 600px) { .hero-content { margin-top: -9vw; } }
+
+/* o fundo desfocado fica escuro atrás do banner e só aparece mais abaixo, sem "fantasma" da arte */
+.site-bg { filter: blur(26px) saturate(1.4) brightness(.38); }
+.site-bg::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, #0d0c11 0, #0d0c11 38%, rgba(13, 12, 17, .55) 70%, rgba(13, 12, 17, .25) 100%);
 }
