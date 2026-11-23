@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rubik:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
   <header class="topbar">
@@ -31,15 +31,22 @@
 
   <!-- ================= Vitrine ================= -->
   <div id="home">
-    <section class="banner-wrap">
-      <div class="banner" id="banner">
-        <h1 class="sr-only">Fliperama: portal de jogos</h1>
+    <!-- Palco: a arte do banner pintada direto no muro, com a pichação antiga por cima -->
+    <section class="stage" id="stage">
+      <h1 class="sr-only">Fliperama: portal de jogos feitos em casa</h1>
+      <div class="stage-art" id="banner">
         <img src="assets/banner.webp" width="2000" height="750" alt="Grafite escrito Fliperama, portal de jogos, com controle, fone de ouvido, joystick de fliperama e alienígena pixelado num muro de tijolos" fetchpriority="high">
         <span class="glint" aria-hidden="true"></span>
       </div>
-      <span class="drips banner-drips" aria-hidden="true">
-        <i style="left:9%;--h:38px"></i><i style="left:27%;--h:20px;animation-delay:.3s"></i><i style="left:46%;--h:46px;animation-delay:.15s"></i><i style="left:71%;--h:26px;animation-delay:.45s"></i><i style="left:90%;--h:34px;animation-delay:.6s"></i>
-      </span>
+      <div class="stage-tag" aria-hidden="true">
+        <span class="tagline">Jogos feitos <em>em casa</em>
+          <span class="drips">
+            <i style="left:8%;--h:30px"></i><i style="left:33%;--h:16px;animation-delay:.3s"></i><i style="left:61%;--h:38px;animation-delay:.15s"></i><i style="left:88%;--h:22px;animation-delay:.45s"></i>
+          </span>
+        </span>
+      </div>
+      <span class="sticker sticker-free" aria-hidden="true">100%<br>grátis</span>
+      <span class="sticker sticker-play" aria-hidden="true">sem<br>download</span>
     </section>
 
     <section class="hero">
@@ -85,7 +92,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="games.js?v=6"></script>
+  <script src="games.js?v=7"></script>
   <script>
     const games = window.GAMES || [];
     const moods = window.MOODS || [];
@@ -304,6 +311,7 @@
       if (game) {
         document.title = game.title + ' — Fliperama';
         $('top-right').innerHTML = '<a class="btn ghost small" href="#">← Todos os jogos</a>';
+        document.body.classList.remove('stage-visible');
         showPlayer(game);
         scrollTo(0, 0);
       } else {
@@ -317,15 +325,23 @@
     $('see-all').onclick = e => { e.preventDefault(); $('grid-title').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     $('random2').onclick = () => $('random').click();
 
-    // Banner: leve efeito 3D seguindo o mouse (desligado para quem prefere menos movimento)
-    const banner = $('banner');
-    if (matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
-      banner.addEventListener('pointermove', e => {
-        const r = banner.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-        banner.style.transform = `perspective(1200px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) scale(1.01)`;
-      });
-      banner.addEventListener('pointerleave', () => banner.style.transform = '');
+    // Palco: a logo do topo só aparece quando a arte grande sai da tela
+    const stageImg = document.querySelector('.stage-art img');
+    new IntersectionObserver(([e]) => {
+      document.body.classList.toggle('stage-visible', e.isIntersecting && !$('home').hidden);
+    }, { rootMargin: '-60px 0px 0px 0px' }).observe($('banner'));
+
+    // Parallax suave: a arte desce mais devagar que a página (desligado para quem prefere menos movimento)
+    if (matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+      let ticking = false;
+      addEventListener('scroll', () => {
+        if (ticking) return; ticking = true;
+        requestAnimationFrame(() => {
+          const y = Math.min(scrollY, innerHeight);
+          stageImg.style.transform = `translateY(${y * 0.28}px) scale(${1 + y / 6000})`;
+          ticking = false;
+        });
+      }, { passive: true });
     }
 
     $('random').onclick = () => {
