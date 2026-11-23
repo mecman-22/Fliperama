@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memória de Cores</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: #14121f; color: #fff; font-family: system-ui, sans-serif; display: grid; place-items: center; user-select: none; }
+  .wrap { text-align: center; padding: 16px; }
+  h1 { margin: 0 0 4px; font-size: clamp(22px, 5vmin, 34px); }
+  #msg { color: #b9b6dd; min-height: 1.5em; margin: 0 0 16px; }
+  .board { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: min(70vmin, 380px); aspect-ratio: 1; margin: 0 auto; }
+  .pad { border: 0; border-radius: 22px; cursor: pointer; opacity: .45; transition: opacity .1s, transform .1s; position: relative; }
+  .pad span { position: absolute; bottom: 8px; right: 12px; font-weight: 700; opacity: .6; }
+  .pad.on { opacity: 1; transform: scale(1.04); box-shadow: 0 0 40px currentColor; }
+  .p0 { background: #4ade80; color: #4ade80; } .p1 { background: #f87171; color: #f87171; }
+  .p2 { background: #facc15; color: #facc15; } .p3 { background: #60a5fa; color: #60a5fa; }
+  .pad span { color: #0006; }
+  .board.locked .pad { cursor: default; }
+  .stats { margin-top: 16px; display: flex; gap: 24px; justify-content: center; color: #b9b6dd; }
+  .stats b { color: #fff; }
+  #go { margin-top: 16px; background: #ff8a3d; color: #fff; border: 0; border-radius: 10px; padding: 12px 24px; font-size: 18px; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧠 Memória de Cores</h1>
+  <p id="msg">Observe a sequência e repita.</p>
+  <div class="board locked" id="board">
+    <button class="pad p0" data-i="0"><span>1</span></button>
+    <button class="pad p1" data-i="1"><span>2</span></button>
+    <button class="pad p2" data-i="2"><span>3</span></button>
+    <button class="pad p3" data-i="3"><span>4</span></button>
+  </div>
+  <div class="stats"><div>Nível <b id="lvl">0</b></div><div>Recorde <b id="best">0</b></div></div>
+  <button id="go">Começar</button>
+</div>
+<script>
+const pads = [...document.querySelectorAll('.pad')];
+const board = document.getElementById('board'), msg = document.getElementById('msg');
+const go = document.getElementById('go'), lvlEl = document.getElementById('lvl'), bestEl = document.getElementById('best');
+const freqs = [329.6, 261.6, 392.0, 196.0];
+let seq = [], pos = 0, accepting = false, actx, best = 0;
+try { best = +localStorage.getItem('memoria-best') || 0; } catch (e) {}
+bestEl.textContent = best;
+
+function tone(f, ms) {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(.2, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, actx.currentTime + ms / 1000);
+    o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + ms / 1000);
+  } catch (e) {}
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function flash(i, ms) {
+  pads[i].classList.add('on'); tone(freqs[i], ms);
+  await sleep(ms); pads[i].classList.remove('on');
+}
+
+async function playSeq() {
+  accepting = false; board.classList.add('locked');
+  msg.textContent = 'Observe...';
+  await sleep(600);
+  const speed = Math.max(220, 520 - seq.length * 20);
+  for (const i of seq) { await flash(i, speed); await sleep(speed * .4); }
+  pos = 0; accepting = true; board.classList.remove('locked');
+  msg.textContent = 'Sua vez!';
+}
+
+function next() {
+  seq.push(Math.floor(Math.random() * 4));
+  lvlEl.textContent = seq.length;
+  playSeq();
+}
+
+function press(i) {
+  if (!accepting) return;
+  flash(i, 200);
+  if (i !== seq[pos]) {
+    accepting = false; board.classList.add('locked');
+    tone(110, 500);
+    const score = seq.length - 1;
+    if (score > best) { best = score; bestEl.textContent = best; try { localStorage.setItem('memoria-best', best); } catch (e) {} }
+    msg.textContent = `Errou! Você chegou ao nível ${score}.`;
+    go.textContent = 'Jogar de novo'; go.style.display = '';
+    return;
+  }
+  pos++;
+  if (pos === seq.length) { accepting = false; msg.textContent = 'Boa! ✨'; setTimeout(next, 500); }
+}
+
+pads.forEach(p => p.addEventListener('pointerdown', () => press(+p.dataset.i)));
+addEventListener('keydown', e => { const n = +e.key; if (n >= 1 && n <= 4) press(n - 1); });
+go.onclick = () => { seq = []; go.style.display = 'none'; next(); };
+</script>
+</body>
+</html>

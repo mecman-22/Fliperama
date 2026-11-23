@@ -1,0 +1,104 @@
+:root {
+  --bg: #0f0f17;
+  --bg-2: #181826;
+  --card: #1f1f30;
+  --text: #ecebf5;
+  --muted: #9a98b3;
+  --accent: #7c5cff;
+  --border: #2c2b42;
+  --radius: 14px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+a { color: inherit; text-decoration: none; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(15,15,23,.85);
+  backdrop-filter: blur(8px);
+  position: sticky; top: 0; z-index: 10;
+}
+.logo { font-weight: 800; font-size: 1.25rem; letter-spacing: -.02em; }
+.logo span { color: var(--accent); }
+
+.hero { max-width: 1100px; margin: 0 auto; padding: 48px 24px 24px; }
+.hero h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 0 0 8px; letter-spacing: -.03em; }
+.hero p { color: var(--muted); margin: 0; max-width: 560px; }
+
+.toolbar {
+  max-width: 1100px; margin: 0 auto; padding: 16px 24px;
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+}
+.search {
+  flex: 1 1 240px;
+  background: var(--bg-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 14px; font-size: 1rem;
+}
+.search:focus { outline: 2px solid var(--accent); border-color: transparent; }
+.chip {
+  background: var(--bg-2); color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 6px 14px; cursor: pointer; font-size: .9rem;
+}
+.chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.grid {
+  max-width: 1100px; margin: 0 auto; padding: 8px 24px 64px;
+  display: grid; gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: transform .15s, border-color .15s;
+}
+.card:hover { transform: translateY(-4px); border-color: var(--c, var(--accent)); }
+.thumb {
+  aspect-ratio: 16/9; display: grid; place-items: center; font-size: 4rem;
+  background: radial-gradient(circle at 30% 30%, var(--c), #111 120%);
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.card-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.card h2 { margin: 0; font-size: 1.15rem; }
+.card p { margin: 0; color: var(--muted); font-size: .92rem; flex: 1; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: .75rem; padding: 2px 8px; border-radius: 6px; background: var(--bg-2); color: var(--muted); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: var(--c, var(--accent)); color: #fff; font-weight: 700;
+  border: 0; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-size: .95rem;
+}
+.btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.empty { color: var(--muted); text-align: center; grid-column: 1/-1; padding: 40px; }
+
+footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px; border-top: 1px solid var(--border); }
+
+/* Página do jogo */
+.player-wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+.player-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+.player-head h1 { margin: 0; font-size: 1.6rem; }
+.frame-box {
+  position: relative; width: 100%; aspect-ratio: 16/10;
+  background: #000; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+}
+.frame-box iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.info { margin-top: 16px; color: var(--muted); }
+.info strong { color: var(--text); }
+
+@media (max-width: 600px) {
+  .topbar, .hero, .toolbar, .grid, .player-wrap { padding-left: 16px; padding-right: 16px; }
+  .frame-box { aspect-ratio: 3/4; }
+}

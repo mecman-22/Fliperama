@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fliperama</title>
+  <meta name="description" content="Jogos autorais para jogar direto no navegador.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="#">Fliper<span>ama</span></a>
+    <span id="top-right"></span>
+  </header>
+
+  <!-- Vitrine -->
+  <div id="home">
+    <section class="hero">
+      <h1>Jogos feitos em casa 🎮</h1>
+      <p>Uma coleção de jogos autorais que rodam direto no navegador. Sem instalar nada — é só clicar e jogar.</p>
+    </section>
+    <div class="toolbar">
+      <input class="search" id="search" type="search" placeholder="Buscar jogo..." aria-label="Buscar jogo">
+      <div id="filters" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+    <main class="grid" id="grid"></main>
+  </div>
+
+  <!-- Jogo -->
+  <div class="player-wrap" id="player" hidden></div>
+
+  <footer>Feito com ❤️ — todos os jogos são de autoria própria.</footer>
+
+  <script src="games.js"></script>
+  <script>
+    const games = window.GAMES || [];
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    let activeTag = 'Todos';
+
+    // ---------- Vitrine ----------
+    const tags = ['Todos', ...new Set(games.flatMap(g => g.tags || []))];
+    tags.forEach(t => {
+      const b = document.createElement('button');
+      b.className = 'chip' + (t === activeTag ? ' active' : '');
+      b.textContent = t;
+      b.onclick = () => {
+        activeTag = t;
+        [...$('filters').children].forEach(c => c.classList.toggle('active', c === b));
+        renderGrid();
+      };
+      $('filters').appendChild(b);
+    });
+
+    function renderGrid() {
+      const q = $('search').value.trim().toLowerCase();
+      const list = games.filter(g =>
+        (activeTag === 'Todos' || (g.tags || []).includes(activeTag)) &&
+        (!q || (g.title + ' ' + g.description).toLowerCase().includes(q))
+      );
+      $('grid').innerHTML = list.length ? list.map(g => `
+        <a class="card" href="#${encodeURIComponent(g.id)}" style="--c:${esc(g.color || '#7c5cff')}">
+          <div class="thumb">${g.thumbnail ? `<img src="${esc(g.thumbnail)}" alt="">` : esc(g.emoji || '🎮')}</div>
+          <div class="card-body">
+            <h2>${esc(g.title)}</h2>
+            <p>${esc(g.description)}</p>
+            <div class="tags">${(g.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+            <span class="btn">▶ Jogar</span>
+          </div>
+        </a>`).join('') : '<div class="empty">Nenhum jogo encontrado.</div>';
+    }
+    $('search').addEventListener('input', renderGrid);
+    renderGrid();
+
+    // ---------- Player ----------
+    function showPlayer(game) {
+      const src = game.url || `games/${game.id}/index.html`;
+      const p = $('player');
+      p.style.setProperty('--c', game.color || '#7c5cff');
+      p.innerHTML = `
+        <div class="player-head">
+          <h1>${esc(game.emoji || '')} ${esc(game.title)}</h1>
+          <div style="display:flex;gap:8px">
+            <button class="btn ghost" id="reload">↻ Reiniciar</button>
+            <button class="btn" id="fs">⛶ Tela cheia</button>
+          </div>
+        </div>
+        <div class="frame-box" id="box">
+          <iframe id="frame" src="${esc(src)}" title="${esc(game.title)}" allow="fullscreen; gamepad; autoplay" allowfullscreen></iframe>
+        </div>
+        <div class="info">
+          <p>${esc(game.description)}</p>
+          ${game.controls ? `<p><strong>Controles:</strong> ${esc(game.controls)}</p>` : ''}
+        </div>`;
+      const frame = $('frame');
+      frame.addEventListener('load', () => frame.focus());
+      $('reload').onclick = () => { frame.src = 'about:blank'; setTimeout(() => frame.src = src, 30); };
+      $('fs').onclick = () => {
+        const box = $('box'), req = box.requestFullscreen || box.webkitRequestFullscreen;
+        if (req) Promise.resolve(req.call(box)).catch(() => {});
+        frame.focus();
+      };
+    }
+
+    // ---------- Rotas (#id-do-jogo) ----------
+    function route() {
+      const id = decodeURIComponent(location.hash.slice(1));
+      const game = games.find(g => g.id === id);
+      $('home').hidden = !!game;
+      $('player').hidden = !game;
+      if (game) {
+        document.title = game.title + ' — Fliperama';
+        $('top-right').innerHTML = '<a class="btn ghost" href="#">← Todos os jogos</a>';
+        showPlayer(game);
+        scrollTo(0, 0);
+      } else {
+        document.title = 'Fliperama';
+        $('top-right').innerHTML = `<span style="color:var(--muted);font-size:.9rem">${games.length} ${games.length === 1 ? 'jogo' : 'jogos'}</span>`;
+        $('player').innerHTML = ''; // para o jogo ao voltar
+      }
+    }
+    addEventListener('hashchange', route);
+    route();
+  </script>
+</body>
+</html>
