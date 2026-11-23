@@ -25,6 +25,7 @@ games/<id>/index.html → cada jogo fica na sua própria pasta
   color: "#22c55e",               // cor do card
   emoji: "🐸",                    // ou use thumbnail:
   // thumbnail: "games/meu-jogo/capa.png",
+  // ratio: "1/1",                // opcional: proporção da área de jogo no computador (padrão 16/10)
   // url: "https://..."           // opcional: jogo hospedado em outro lugar
 }
 ```

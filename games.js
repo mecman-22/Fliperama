@@ -31,5 +31,17 @@ window.GAMES = [
     color: "#2ee6d6",
     emoji: "🔢",
     added: "2026-11-23"
+  },
+  {
+    id: "jogo-da-velha",
+    title: "Jogo da Velha",
+    description: "Jogue online contra outra pessoa, contra o computador ou com um amigo no mesmo aparelho. Tabuleiros 3x3, 4x4 e 5x5, temas e níveis de XP.",
+    tags: ["Online", "Estratégia", "2 jogadores"],
+    controls: "Toque nas casas, ou teclas 1-9 no 3x3 (R reinicia, M volta ao menu)",
+    color: "#ff2e63",
+    emoji: "❌",
+    thumbnail: "games/jogo-da-velha/icon-512.png",
+    ratio: "1/1",                 // área de jogo mais alta no computador
+    added: "2026-11-23"
   }
 ];

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rubik:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
   <header class="topbar">
@@ -42,7 +42,7 @@
     <p>Todos os jogos são de autoria própria.</p>
   </footer>
 
-  <script src="games.js?v=3"></script>
+  <script src="games.js?v=4"></script>
   <script>
     const games = window.GAMES || [];
     const $ = id => document.getElementById(id);
@@ -88,6 +88,7 @@
       const src = game.url || `games/${game.id}/index.html`;
       const p = $('player');
       p.style.setProperty('--c', game.color || '#7c5cff');
+      if (game.ratio) p.style.setProperty('--ratio', game.ratio); else p.style.removeProperty('--ratio');
       p.innerHTML = `
         <div class="player-head">
           <h1>${esc(game.emoji || '')} ${esc(game.title)}</h1>

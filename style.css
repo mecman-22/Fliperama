@@ -191,7 +191,7 @@ body::before {
     var(--wall-dark);
   overflow: hidden;
 }
-.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb img { width: 100%; height: 100%; object-fit: contain; }
 .thumb { filter: saturate(1.15); }
 .card-body { padding: 16px 18px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
 .card h2 { margin: 0; font: 1.6rem/1.1 var(--font-marker); }
@@ -264,7 +264,7 @@ footer .sig {
 }
 .player-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .frame-box {
-  position: relative; width: 100%; max-width: 100%; aspect-ratio: 16/10;
+  position: relative; width: 100%; max-width: 100%; aspect-ratio: var(--ratio, 16/10); max-height: 88vh;
   background: #000;
   border: 4px solid var(--ink);
   box-shadow: 12px 12px 0 var(--c, var(--pink));
