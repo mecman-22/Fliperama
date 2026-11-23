@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fliperama</title>
-  <meta name="description" content="Jogos autorais grátis para jogar direto no navegador, no computador ou no celular. Sem instalar nada.">
-  <meta name="theme-color" content="#121115">
+  <meta name="description" content="Jogos grátis para jogar direto no navegador, no computador ou no celular. Sem download e sem cadastro.">
+  <meta name="theme-color" content="#0d0c10">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Fliperama: jogos feitos em casa">
-  <meta property="og:description" content="Jogos autorais grátis para jogar direto no navegador, no computador ou no celular.">
+  <meta property="og:title" content="Fliperama">
+  <meta property="og:description" content="Jogos grátis para jogar direto no navegador, no computador ou no celular.">
   <meta property="og:url" content="https://mecman-22.github.io/Fliperama/">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:image" content="https://mecman-22.github.io/Fliperama/assets/banner.webp">
@@ -17,47 +17,52 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23151418'/%3E%3Ctext x='32' y='47' font-family='Impact,sans-serif' font-size='44' text-anchor='middle' fill='%23ffe14d' stroke='%23ff3e9a' stroke-width='2' transform='rotate(-8 32 32)'%3EF%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rubik:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&family=Rubik:wght@400;600;700&family=Sedgwick+Ave+Display&display=swap">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
-  <header class="topbar">
-    <a class="logo" href="#">Fliper<span>ama</span></a>
-    <div class="top-actions">
-      <button class="btn ghost small" id="random" title="Abre um jogo aleatório">🎲 Surpresa</button>
-      <span id="top-right"></span>
-    </div>
+  <!-- ================= Menu do topo ================= -->
+  <header class="topbar nav">
+    <a class="brand" href="#" aria-label="Fliperama: início">
+      <span class="brand-icon" aria-hidden="true">🕹️</span>
+      <span class="brand-text"><i class="crown" aria-hidden="true">👑</i>Fliperama</span>
+    </a>
+    <nav class="menu" aria-label="Seções">
+      <button class="menu-item active" data-go="inicio"><span aria-hidden="true">🏠</span> Início</button>
+      <button class="menu-item" data-go="jogos"><span aria-hidden="true">🎮</span> Jogos</button>
+      <button class="menu-item" data-go="climas"><span aria-hidden="true">⭐</span> Destaques</button>
+      <button class="menu-item" data-go="favoritos"><span aria-hidden="true">💛</span> Favoritos</button>
+      <button class="menu-item" data-go="sobre"><span aria-hidden="true">ℹ️</span> Sobre</button>
+    </nav>
+    <label class="nav-search">
+      <span aria-hidden="true">🔍</span>
+      <input id="search" type="search" placeholder="Buscar jogos..." aria-label="Buscar jogos" autocomplete="off">
+    </label>
+    <span id="top-right"></span>
   </header>
 
   <!-- ================= Vitrine ================= -->
   <div id="home">
-    <!-- Palco: a arte do banner pintada direto no muro, com a pichação antiga por cima -->
-    <section class="stage" id="stage">
-      <h1 class="sr-only">Fliperama: portal de jogos feitos em casa</h1>
-      <div class="stage-art" id="banner">
-        <img src="assets/banner.webp" width="2000" height="750" alt="Grafite escrito Fliperama, portal de jogos, com controle, fone de ouvido, joystick de fliperama e alienígena pixelado num muro de tijolos" fetchpriority="high">
+    <section class="hero2" id="inicio">
+      <h1 class="sr-only">Fliperama</h1>
+      <div class="hero-art">
+        <img src="assets/banner.webp" width="2000" height="750" alt="Grafite escrito Fliperama com coroa, controle, fone de ouvido, joystick de fliperama e alienígena pixelado num muro de tijolos" fetchpriority="high">
         <span class="glint" aria-hidden="true"></span>
       </div>
-      <div class="stage-tag" aria-hidden="true">
-        <span class="tagline">Jogos feitos <em>em casa</em>
-          <span class="drips">
-            <i style="left:8%;--h:30px"></i><i style="left:33%;--h:16px;animation-delay:.3s"></i><i style="left:61%;--h:38px;animation-delay:.15s"></i><i style="left:88%;--h:22px;animation-delay:.45s"></i>
-          </span>
-        </span>
-      </div>
-      <span class="sticker sticker-free" aria-hidden="true">100%<br>grátis</span>
-      <span class="sticker sticker-play" aria-hidden="true">sem<br>download</span>
-    </section>
 
-    <section class="hero">
-      <div class="hero-text">
-        <p class="tape">Jogos autorais que rodam direto no navegador. Sem instalar nada, sem cadastro: é só clicar e jogar.</p>
-        <div class="hero-actions">
-          <a class="btn" href="#todos" id="see-all">▼ Ver todos os jogos</a>
-          <button class="btn ghost" id="random2">🎲 Me surpreenda</button>
+      <div class="hero-content">
+        <div class="hero-left">
+          <button class="cta" id="play-now"><span aria-hidden="true">▶</span> Jogar agora</button>
+          <button class="cta ghost" id="random2"><span aria-hidden="true">★</span> Me surpreenda</button>
+        </div>
+        <div class="hero-right">
+          <div class="carousel" id="carousel" aria-roledescription="carrossel" aria-label="Jogos em destaque"></div>
         </div>
       </div>
-      <div id="featured"></div>
+
+      <span class="splat splat-free" aria-hidden="true">100%<br>grátis</span>
+      <span class="splat splat-dl" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 3v11m-5-5 5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>sem<br>download</span>
+      <span class="rip" aria-hidden="true"></span>
     </section>
 
     <section class="shelf" id="continue" hidden>
@@ -65,13 +70,12 @@
       <div class="shelf-row" id="continue-row"></div>
     </section>
 
-    <section class="shelf">
+    <section class="shelf" id="climas">
       <h2 class="section-title">Escolha pelo clima</h2>
       <div class="moods" id="moods"></div>
     </section>
 
-    <div class="toolbar">
-      <input class="search" id="search" type="search" placeholder="Buscar jogo...  (atalho: /)" aria-label="Buscar jogo">
+    <div class="toolbar" id="jogos">
       <div id="filters" class="filters"></div>
     </div>
 
@@ -85,20 +89,22 @@
   <!-- ================= Jogo ================= -->
   <div class="player-wrap" id="player" hidden></div>
 
-  <footer>
+  <footer id="sobre">
     <span class="sig">Fliperama</span>
-    <p>Todos os jogos são de autoria própria. Grátis, sem anúncios e sem cadastro.</p>
+    <p>Todos os jogos são de autoria própria. Grátis, sem anúncios, sem download e sem cadastro.</p>
+    <p class="foot-small">Favoritos e jogos recentes ficam salvos só no seu navegador.</p>
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="games.js?v=7"></script>
+  <script src="games.js?v=9"></script>
   <script>
     const games = window.GAMES || [];
     const moods = window.MOODS || [];
     const $ = id => document.getElementById(id);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const byId = id => games.find(g => g.id === id);
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // ---------- Memória local (favoritos e recentes ficam só neste navegador) ----------
     const store = {
@@ -130,8 +136,9 @@
     const isOnline = g => (g.tags || []).includes('Online');
     function badges(g) {
       return `<div class="badges">
-        ${isNew(g) ? '<span class="badge new">NOVO</span>' : ''}
+        ${isNew(g) ? '<span class="badge new">NOVO!</span>' : ''}
         ${isOnline(g) ? '<span class="badge" title="Tem modo online">🌐 Online</span>' : ''}
+        ${(g.tags || [])[0] && !isOnline(g) ? `<span class="badge">🎮 ${esc(g.tags[0])}</span>` : ''}
         ${mobileOk(g) ? '<span class="badge" title="Funciona no celular">📱</span>' : ''}
       </div>`;
     }
@@ -155,6 +162,44 @@
       return `<a class="mini" href="#${encodeURIComponent(g.id)}" style="--c:${esc(g.color || '#ff3e9a')}">
         <span class="mini-thumb">${thumb(g)}</span><span class="mini-title">${esc(g.title)}</span></a>`;
     }
+
+    // ---------- Carrossel de destaques ----------
+    const featuredList = [...games].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+    let slide = 0, autoT = null;
+    function renderCarousel() {
+      const g = featuredList[slide];
+      if (!g) { $('carousel').innerHTML = ''; return; }
+      $('carousel').innerHTML = `
+        <article class="feat" style="--c:${esc(g.color || '#ff3e9a')}" aria-label="${slide + 1} de ${featuredList.length}: ${esc(g.title)}">
+          <span class="feat-tab"><span aria-hidden="true">★</span> Em destaque</span>
+          <a class="card-link" href="#${encodeURIComponent(g.id)}" aria-label="Jogar ${esc(g.title)}"></a>
+          <div class="feat-art">${thumb(g)}${badges(g)}</div>
+          <div class="feat-body">
+            <h2>${esc(g.title)}</h2>
+            <p>${esc(g.description)}</p>
+          </div>
+          <button class="feat-nav prev" data-step="-1" aria-label="Destaque anterior">‹</button>
+          <button class="feat-nav next" data-step="1" aria-label="Próximo destaque">›</button>
+          <div class="dots">${featuredList.map((_, i) => `<i class="${i === slide ? 'on' : ''}"></i>`).join('')}</div>
+        </article>`;
+    }
+    function step(n) { slide = (slide + n + featuredList.length) % featuredList.length; renderCarousel(); }
+    $('carousel').addEventListener('click', e => {
+      const b = e.target.closest('[data-step]'); if (!b) return;
+      e.preventDefault(); step(+b.dataset.step); restartAuto();
+    });
+    function restartAuto() {
+      clearInterval(autoT);
+      if (!reduceMotion && featuredList.length > 1) autoT = setInterval(() => { if (!$('home').hidden && !document.hidden) step(1); }, 6000);
+    }
+    $('carousel').addEventListener('pointerenter', () => clearInterval(autoT));
+    $('carousel').addEventListener('pointerleave', restartAuto);
+
+    $('play-now').onclick = () => { const g = featuredList[slide]; if (g) location.hash = g.id; };
+    $('random2').onclick = () => {
+      const pool = games.filter(g => g.id !== decodeURIComponent(location.hash.slice(1)));
+      if (pool.length) location.hash = pool[Math.floor(Math.random() * pool.length)].id;
+    };
 
     // ---------- Filtros ----------
     const F = { mood: null, tag: 'Todos', favOnly: false };
@@ -205,7 +250,13 @@
       $('grid').innerHTML = list.length ? list.map(card).join('') : `<div class="empty">${empty}</div>`;
       if (scroll) $('grid-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    $('search').addEventListener('input', () => renderGrid());
+
+    // Busca no menu: em qualquer página, leva para a lista filtrada
+    $('search').addEventListener('input', () => {
+      if ($('home').hidden) { location.hash = ''; }
+      renderGrid();
+      if ($('search').value.trim()) $('grid-title').scrollIntoView({ block: 'start' });
+    });
 
     // Favoritar direto do card (o card inteiro é um link; a estrela fica por cima)
     document.addEventListener('click', e => {
@@ -219,19 +270,30 @@
       if (F.favOnly) renderGrid();
     });
 
+    // ---------- Menu ----------
+    const sections = { inicio: 'inicio', jogos: 'grid-title', climas: 'climas', sobre: 'sobre' };
+    document.querySelectorAll('.menu-item').forEach(b => b.addEventListener('click', () => {
+      const go = b.dataset.go;
+      const doScroll = () => {
+        if (go === 'favoritos') { F.favOnly = true; F.mood = null; F.tag = 'Todos'; renderGrid(true); }
+        else if (go === 'inicio') scrollTo({ top: 0, behavior: 'smooth' });
+        else $(sections[go]).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      if ($('home').hidden && go !== 'sobre') { location.hash = ''; setTimeout(doScroll, 50); } else doScroll();
+    }));
+    // destaca no menu a seção que está na tela
+    const spy = [['inicio', 'inicio'], ['climas', 'climas'], ['jogos', 'jogos']];
+    const spyObs = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (!en.isIntersecting || $('home').hidden) return;
+        const key = spy.find(([, id]) => id === en.target.id)?.[0];
+        document.querySelectorAll('.menu-item').forEach(b => b.classList.toggle('active', b.dataset.go === key));
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    spy.forEach(([, id]) => $(id) && spyObs.observe($(id)));
+
     function renderHome() {
-      const f = games.find(g => g.featured) || games[0];
-      $('featured').innerHTML = f ? `
-        <article class="featured" style="--c:${esc(f.color || '#ff3e9a')}">
-          <span class="featured-label">Em destaque</span>
-          <a class="card-link" href="#${encodeURIComponent(f.id)}" aria-label="Jogar ${esc(f.title)}"></a>
-          <div class="thumb">${thumb(f)}${badges(f)}</div>
-          <div class="featured-body">
-            <h2>${esc(f.title)}</h2>
-            <p>${esc(f.description)}</p>
-            <span class="btn">▶ Jogar agora</span>
-          </div>
-        </article>` : '';
+      renderCarousel(); restartAuto();
       const rec = recents.map(byId).filter(Boolean);
       $('continue').hidden = !rec.length;
       $('continue-row').innerHTML = rec.map(mini).join('');
@@ -308,49 +370,41 @@
       const game = byId(id);
       $('home').hidden = !!game;
       $('player').hidden = !game;
+      document.body.classList.toggle('on-game', !!game);
       if (game) {
         document.title = game.title + ' — Fliperama';
         $('top-right').innerHTML = '<a class="btn ghost small" href="#">← Todos os jogos</a>';
-        document.body.classList.remove('stage-visible');
+        clearInterval(autoT);
+        document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
         showPlayer(game);
         scrollTo(0, 0);
       } else {
         document.title = 'Fliperama';
-        $('top-right').innerHTML = `<span class="count">${games.length} ${games.length === 1 ? 'jogo' : 'jogos'}</span>`;
+        $('top-right').innerHTML = '';
         $('player').innerHTML = ''; // para o jogo ao voltar
         renderHome();
       }
     }
 
-    $('see-all').onclick = e => { e.preventDefault(); $('grid-title').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
-    $('random2').onclick = () => $('random').click();
-
-    // Palco: a logo do topo só aparece quando a arte grande sai da tela
-    const stageImg = document.querySelector('.stage-art img');
-    new IntersectionObserver(([e]) => {
-      document.body.classList.toggle('stage-visible', e.isIntersecting && !$('home').hidden);
-    }, { rootMargin: '-60px 0px 0px 0px' }).observe($('banner'));
-
-    // Parallax suave: a arte desce mais devagar que a página (desligado para quem prefere menos movimento)
-    if (matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    // Parallax suave na arte (desligado para quem prefere menos movimento)
+    const heroImg = document.querySelector('.hero-art img');
+    if (!reduceMotion) {
       let ticking = false;
       addEventListener('scroll', () => {
-        if (ticking) return; ticking = true;
+        if (ticking || $('home').hidden) return; ticking = true;
         requestAnimationFrame(() => {
           const y = Math.min(scrollY, innerHeight);
-          stageImg.style.transform = `translateY(${y * 0.28}px) scale(${1 + y / 6000})`;
+          heroImg.style.transform = `translateY(${y * 0.25}px)`;
           ticking = false;
         });
       }, { passive: true });
     }
 
-    $('random').onclick = () => {
-      const current = decodeURIComponent(location.hash.slice(1));
-      const pool = games.filter(g => g.id !== current);
-      if (pool.length) location.hash = pool[Math.floor(Math.random() * pool.length)].id;
-    };
     addEventListener('keydown', e => {
-      if (e.key === '/' && !$('home').hidden && document.activeElement !== $('search')) { e.preventDefault(); $('search').focus(); }
+      if (e.key === '/' && document.activeElement !== $('search')) { e.preventDefault(); $('search').focus(); }
+      if (!$('home').hidden && document.activeElement?.closest?.('#carousel')) {
+        if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1);
+      }
     });
     addEventListener('hashchange', route);
     route();
