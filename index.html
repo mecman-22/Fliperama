@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&family=Rubik:wght@400;600;700&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=19">
+  <link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
   <div class="site-bg" aria-hidden="true"></div>
@@ -72,6 +72,8 @@
       <span class="rip" aria-hidden="true"></span>
     </section>
 
+    <div class="home-body">
+    <aside class="side" aria-label="Menu lateral">
     <section class="shelf" id="continue" hidden>
       <h2 class="section-title">Continue jogando</h2>
       <div class="shelf-row" id="continue-row"></div>
@@ -81,6 +83,9 @@
       <h2 class="section-title">Escolha pelo clima</h2>
       <div class="moods" id="moods"></div>
     </section>
+    </aside>
+
+    <div class="home-main">
 
     <div class="toolbar" id="jogos">
       <div id="filters" class="filters"></div>
@@ -100,6 +105,8 @@
         <div class="rank-me" id="rank-me"></div>
       </div>
     </section>
+    </div>
+    </div>
   </div>
 
   <!-- ================= Jogo ================= -->
@@ -138,10 +145,10 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="games.js?v=19"></script>
-  <script src="ranking-config.js?v=19"></script>
-  <script src="cloud.js?v=19"></script>
-  <script src="radio.js?v=19" defer></script>
+  <script src="games.js?v=20"></script>
+  <script src="ranking-config.js?v=20"></script>
+  <script src="cloud.js?v=20"></script>
+  <script src="radio.js?v=20" defer></script>
   <script>
     const games = window.GAMES || [];
     const moods = window.MOODS || [];
@@ -363,6 +370,10 @@
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
     spy.forEach(([, id]) => $(id) && spyObs.observe($(id)));
+
+    // altura do menu do topo (fica grudado no alto) para o menu lateral parar logo abaixo dele
+    const topH = () => document.documentElement.style.setProperty('--top-h', document.querySelector('.topbar').offsetHeight + 'px');
+    new ResizeObserver(topH).observe(document.querySelector('.topbar')); topH();
 
     function renderHome() {
       renderCarousel(); restartAuto();
