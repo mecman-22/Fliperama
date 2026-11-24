@@ -1,11 +1,11 @@
 // Deixa o Fliperama instalável e jogável sem internet.
 // Páginas: sempre pergunta ao servidor se há versão nova (ignora o cache do navegador) e só usa a cópia salva se estiver offline.
 // Imagens, fontes e demais arquivos: serve do cache e atualiza em segundo plano.
-const V = 'fliperama-v17';
-const BASE = ['./', 'index.html', 'style.css?v=17', 'games.js?v=17', 'ranking-config.js?v=17', 'cloud.js?v=17', 'manifest.webmanifest',
+const V = 'fliperama-v18';
+const BASE = ['./', 'index.html', 'style.css?v=18', 'games.js?v=18', 'ranking-config.js?v=18', 'cloud.js?v=18', 'manifest.webmanifest',
   'assets/banner.webp', 'assets/icon-192.png', 'assets/icon-512.png',
   'games/coletor-estelar/index.html', 'games/memoria-cores/index.html', 'games/sudoku/index.html',
-  'games/role-neon/index.html', 'games/mira-afiada/index.html', 'games/golfe-nuvens/index.html'];
+  'games/role-neon/index.html', 'games/mira-afiada/index.html', 'games/golfe-nuvens/index.html', 'games/racha-turbo/index.html'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(BASE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));

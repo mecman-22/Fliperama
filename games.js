@@ -20,6 +20,20 @@ window.MOODS = [
 
 window.GAMES = [
   {
+    id: "racha-turbo",
+    title: "Racha Turbo",
+    description: "Corrida contra rivais numa estrada cheia de trânsito: desvie, ultrapasse, use nitro e mísseis para tirar os adversários da disputa e chegue no pódio para seguir de fase. 5 carros para comprar na garagem.",
+    tags: ["Corrida", "Ação"],
+    moods: ["adrenalina", "rapido"],
+    controls: "Setas / A D viram, ↑ ou Shift nitro, ↓ freio, Espaço míssil. No celular, arraste o dedo e use os botões",
+    devices: "Computador e celular",
+    players: "1 jogador",
+    color: "#ff3e2e",
+    emoji: "🏎️",
+    featured: true,
+    added: "2026-11-24"
+  },
+  {
     id: "golfe-nuvens",
     title: "Golfe nas Nuvens",
     description: "Minigolfe com quebra-cabeça em ilhas flutuantes, em pixel art: ajude o golfista Pipo a acertar os bichinhos para abrir o buraco, com ricochetes, setas, portais, tacadas por cima e poderes.",
