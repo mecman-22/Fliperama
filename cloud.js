@@ -120,7 +120,7 @@
   const minhaPosicao = jogo => { const s = session(); return s ? rpc('minha_posicao', { p_token: s.token, p_jogo: jogo }) : Promise.resolve(null); };
 
   const ERROS = {
-    NICK_INVALIDO: 'O nick precisa ter de 3 a 16 caracteres: letras, números ou _ (sem espaço nem acento).',
+    NICK_INVALIDO: 'O nick precisa ter de 3 a 16 caracteres: letras, números, _ ou . (sem espaço nem acento).',
     PIN_INVALIDO: 'O PIN precisa ter de 4 a 8 números.',
     PIN_ERRADO: 'PIN errado para esse nick. Se esse nick não é seu, escolha outro.',
     BLOQUEADO: 'Muitas tentativas erradas nesse nick. Tente de novo daqui a 10 minutos.',

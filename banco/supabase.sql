@@ -8,7 +8,7 @@ create extension if not exists pgcrypto with schema extensions;
 
 -- Jogadores: nick único (sem diferenciar maiúsculas) + PIN guardado com hash
 create table if not exists public.jogadores (
-  nick          text primary key check (nick ~ '^[A-Za-z0-9_]{3,16}$'),
+  nick          text primary key check (nick ~ '^[A-Za-z0-9_.]{3,16}$' and nick ~ '[A-Za-z0-9]'),
   nick_lower    text unique not null,
   pin_hash      text not null,
   falhas        int  not null default 0,
@@ -46,7 +46,7 @@ create or replace function public.entrar(p_nick text, p_pin text)
 returns json language plpgsql security definer set search_path = public, extensions as $$
 declare j public.jogadores; t uuid; novo boolean := false;
 begin
-  if p_nick is null or p_nick !~ '^[A-Za-z0-9_]{3,16}$' then raise exception 'NICK_INVALIDO'; end if;
+  if p_nick is null or p_nick !~ '^[A-Za-z0-9_.]{3,16}$' or p_nick !~ '[A-Za-z0-9]' then raise exception 'NICK_INVALIDO'; end if;
   if p_pin  is null or p_pin  !~ '^[0-9]{4,8}$'          then raise exception 'PIN_INVALIDO';  end if;
 
   select * into j from public.jogadores where nick_lower = lower(p_nick) for update;

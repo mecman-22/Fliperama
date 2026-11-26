@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&family=Rubik:wght@400;600;700&family=Sedgwick+Ave+Display&display=swap">
-  <link rel="stylesheet" href="style.css?v=21">
+  <link rel="stylesheet" href="style.css?v=22">
 </head>
 <body>
   <div class="site-bg" aria-hidden="true"></div>
@@ -145,10 +145,10 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="games.js?v=21"></script>
-  <script src="ranking-config.js?v=21"></script>
-  <script src="cloud.js?v=21"></script>
-  <script src="radio.js?v=21" defer></script>
+  <script src="games.js?v=22"></script>
+  <script src="ranking-config.js?v=22"></script>
+  <script src="cloud.js?v=22"></script>
+  <script src="radio.js?v=22" defer></script>
   <script>
     const games = window.GAMES || [];
     const moods = window.MOODS || [];
@@ -557,7 +557,7 @@
     $('login-form').addEventListener('submit', async e => {
       e.preventDefault();
       const nick = $('l-nick').value.trim(), pin = $('l-pin').value.trim();
-      if (!/^[A-Za-z0-9_]{3,16}$/.test(nick)) { $('l-err').textContent = Cloud.mensagem({ message: 'NICK_INVALIDO' }); return; }
+      if (!/^[A-Za-z0-9_.]{3,16}$/.test(nick) || !/[A-Za-z0-9]/.test(nick)) { $('l-err').textContent = Cloud.mensagem({ message: 'NICK_INVALIDO' }); return; }
       if (!/^[0-9]{4,8}$/.test(pin)) { $('l-err').textContent = Cloud.mensagem({ message: 'PIN_INVALIDO' }); return; }
       $('l-go').disabled = true; $('l-go').textContent = 'Entrando...'; $('l-err').textContent = '';
       try {
