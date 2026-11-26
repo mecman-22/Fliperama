@@ -20,6 +20,47 @@ window.MOODS = [
 
 window.GAMES = [
   {
+    id: "starlit-swarm",
+    title: "Starlit Swarm",
+    description: "Shooter de formação em neon: a frota balança, mergulha e atira. Combos, power-ups, fases bônus e a chefona Mãe-Colmeia a cada 5 ondas.",
+    tags: [
+      "Nave",
+      "Arcade"
+    ],
+    moods: [
+      "adrenalina",
+      "rapido"
+    ],
+    controls: "Setas / A D movem, Espaço atira (segure), P pausa, M som. No celular, arraste o dedo (o tiro é automático)",
+    devices: "Computador e celular",
+    players: "1 jogador",
+    color: "#5a78ff",
+    emoji: "🛸",
+    ratio: "3/4",
+    featured: true,
+    added: "2026-11-26"
+  },
+  {
+    id: "bloomblast",
+    title: "Bloomblast",
+    description: "Bombas num jardim: exploda arbustos, pegue itens e derrote as criaturas na Aventura, ou dispute a Batalha com até 4 jogadores e bots.",
+    tags: [
+      "Ação",
+      "2 jogadores"
+    ],
+    moods: [
+      "amigos",
+      "adrenalina"
+    ],
+    controls: "J1: WASD + Espaço · J2: setas + Enter · J3 e J4: controle. P pausa, M música. No celular, joystick e botão BOMBA",
+    devices: "Computador e celular",
+    players: "1 a 4 jogadores no mesmo aparelho",
+    color: "#ff9ebb",
+    emoji: "🌸",
+    featured: true,
+    added: "2026-11-26"
+  },
+  {
     id: "racha-turbo",
     title: "Racha Turbo",
     description: "Corrida contra rivais numa estrada cheia de trânsito: desvie, ultrapasse, use nitro e mísseis para tirar os adversários da disputa e chegue no pódio para seguir de fase. 5 carros para comprar na garagem.",

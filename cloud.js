@@ -14,6 +14,8 @@
 
   // Que chaves cada jogo usa e como vira pontuação do ranking.
   const GAMES = {
+    'starlit-swarm':   { keys: ['starlit.best', 'starlit.dust'], pontos: d => +val(d, 'starlit.best') || 0, unidade: 'pts' },
+    'bloomblast':      { keys: ['bb_best', 'bb_settings'], pontos: d => +val(d, 'bb_best') || 0, unidade: 'pts' },
     'racha-turbo':     { keys: ['racha.recorde', 'racha.moedas', 'racha.carros', 'racha.carro'], pontos: d => +((val(d, 'racha.recorde') || {}).pontos) || 0, unidade: 'pts' },
     'golfe-nuvens':    { keys: ['golfe.recorde', 'golfe.buracos', 'golfe.liberado'], pontos: d => +((val(d, 'golfe.recorde') || {}).pontos) || 0, unidade: 'pts' },
     'mira-afiada':     { keys: ['mira.recordes', 'mira.config'], pontos: d => +((val(d, 'mira.recordes') || {}).rajada) || 0, unidade: 'pts (Rajada)' },

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Bloomblast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;
+    background:radial-gradient(ellipse at 50% 30%,#4a3a66 0%,#2a2140 70%,#1f1830 100%);}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  canvas{display:block;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 0 4px rgba(255,255,255,.06)}
+  #touch{position:fixed;inset:0;pointer-events:none;display:none}
+  body.touch #touch{display:block}
+  #dpad{position:absolute;left:24px;bottom:24px;width:150px;height:150px;border-radius:50%;
+    background:rgba(255,250,242,.16);border:2px solid rgba(255,255,255,.28);pointer-events:auto;touch-action:none}
+  #knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;
+    background:rgba(255,250,242,.55);transition:transform .05s}
+  #bombBtn{position:absolute;right:28px;bottom:36px;width:104px;height:104px;border-radius:50%;
+    background:rgba(255,158,187,.55);border:3px solid rgba(255,255,255,.55);pointer-events:auto;touch-action:none;
+    font:700 18px Fredoka,system-ui,sans-serif;color:#fff;display:flex;align-items:center;justify-content:center;text-shadow:0 2px 4px rgba(0,0,0,.25)}
+  #bombBtn.down{transform:scale(.92);background:rgba(255,158,187,.8)}
+  #pauseBtn{position:absolute;right:20px;top:20px;width:48px;height:48px;border-radius:14px;pointer-events:auto;
+    background:rgba(255,250,242,.2);border:2px solid rgba(255,255,255,.3);color:#fff;font:700 18px Fredoka,sans-serif}
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="game"></canvas></div>
+<div id="touch">
+  <div id="dpad"><div id="knob"></div></div>
+  <div id="bombBtn">BOMBA</div>
+  <button id="pauseBtn">II</button>
+</div>
+<script src="game.js?v=3"></script>
+</body>
+</html>
