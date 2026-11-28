@@ -1040,3 +1040,10 @@ body {
 .card-body p { color: #3a3644; }
 .section-title { letter-spacing: .5px; }
 .menu-item.active { color: var(--acao-1); }
+
+/* celular: a busca ganha uma linha só dela (antes ficava espremida com "Bu...") e o topo deixa de grudar para não roubar tela */
+@media (max-width: 600px) {
+  .topbar { position: relative; }
+  .nav-search { order: 5; flex: 1 1 100%; }
+  .side { top: 12px; }
+}
