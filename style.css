@@ -969,3 +969,74 @@ footer .install { margin-top: 14px; }
   font: 700 .78rem var(--font-body); padding: 2px 9px; border: 2px solid var(--ink); transform: rotate(3deg); }
 @media (prefers-reduced-motion: reduce) { .jdd-emo { animation: none; } }
 @media (max-width: 900px) { .side .hoje { max-width: 520px; } }
+
+/* =====================================================================
+   Sistema de cores com função (psicologia das cores)
+   - Ação (jogar): amarelo → laranja. Energia e urgência; a cor mais quente
+     e clara da página, então o olho vai direto para ela. Só ela é usada em "Jogar".
+   - Confiança (conta, ranking, salvar): azul-ciano. Segurança e estabilidade.
+   - Calma e conquista (rádio, nível, XP): violeta. Criatividade e status.
+   - Sucesso (missão feita, recorde): verde. Recompensa e "pode seguir".
+   - Novidade (selo NOVO): vermelho-rosado. Chama atenção, em doses pequenas.
+   - Fundo: índigo bem escuro em vez de cinza. Mais calmo e faz o neon brilhar.
+   ===================================================================== */
+:root {
+  --acao-1: #ffd84a; --acao-2: #ff9a1f; --acao-glow: rgba(255, 170, 30, .45);
+  --confia: #35c2ff; --confia-d: #0d6fb8;
+  --calma: #9b7bff; --calma-d: #5b3fd1;
+  --sucesso: #3ddc84;
+  --novidade: #ff3b5c;
+  --wall: #1e1b2e; --wall-dark: #0f0d1a;
+}
+body {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 0%, #2d2747 0%, var(--wall) 55%, var(--wall-dark) 100%);
+}
+
+/* Ação: todo "Jogar" tem a mesma cor quente, e a do jogo fica na capa e na moldura */
+.card .btn, .feat-body .btn {
+  background: linear-gradient(180deg, var(--acao-1), var(--acao-2)); color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink), 0 6px 18px var(--acao-glow);
+}
+.card .btn::after { background: var(--acao-2); }
+.card:hover .btn { filter: brightness(1.08); transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink), 0 8px 26px var(--acao-glow); }
+.card { border-top: 6px solid var(--c, var(--pink)); }
+.card:hover { box-shadow: 10px 10px 0 var(--c, var(--pink)), 0 0 34px color-mix(in srgb, var(--c, var(--pink)) 45%, transparent); }
+.cta { background: linear-gradient(180deg, var(--acao-1), var(--acao-2)); }
+@media (prefers-reduced-motion: no-preference) {
+  #play-now { animation: cta-pulse 2.6s ease-in-out infinite; }
+  @keyframes cta-pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(255, 200, 40, .35), 0 12px 30px var(--acao-glow), inset 0 -4px 0 rgba(0,0,0,.18); }
+    50% { box-shadow: 0 0 0 9px rgba(255, 200, 40, 0), 0 14px 38px rgba(255, 150, 20, .6), inset 0 -4px 0 rgba(0,0,0,.18); } }
+}
+
+/* Confiança: conta e ranking em azul (não competem com o "Jogar") */
+.account { background: linear-gradient(180deg, #5fd3ff, var(--confia)); color: var(--ink); }
+.account.on { background: var(--paper); box-shadow: 3px 3px 0 #000, 0 0 0 2px var(--confia); }
+.rank-board { box-shadow: 8px 8px 0 var(--confia); }
+.rank-list li.me { background: #c9efff; }
+.login-dlg { box-shadow: 8px 8px 0 var(--confia); }
+
+/* Calma: rádio e progresso em violeta */
+.radio-btn { background: #ece6ff; }
+.radio-btn.on { background: var(--c); }
+.hoje .lv u { background: linear-gradient(90deg, var(--calma-d), var(--calma), #ff7ad9); }
+.hoje .lv { box-shadow: 3px 3px 0 var(--calma-d); }
+
+/* Sucesso e recompensa em verde */
+.miss li.ok .ck { background: var(--sucesso); border-color: var(--sucesso); }
+.miss u { background: linear-gradient(90deg, #1fae63, var(--sucesso)); }
+.card .rec { background: #0f3b26; color: var(--sucesso); }
+.rec-dd { color: var(--sucesso); }
+
+/* Novidade: selo NOVO em vermelho-rosado, pequeno e chamativo */
+.badge.new { background: var(--novidade); color: #fff; animation: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .badge.new { animation: novo-pisca 2.2s ease-in-out infinite; }
+  @keyframes novo-pisca { 50% { transform: rotate(-3deg) scale(1.08); } }
+}
+
+/* Leitura: texto principal com bom contraste e hierarquia clara */
+.card-body p { color: #3a3644; }
+.section-title { letter-spacing: .5px; }
+.menu-item.active { color: var(--acao-1); }
