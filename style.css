@@ -932,3 +932,40 @@ footer .install { margin-top: 14px; }
   .side .mood-emoji { grid-row: auto; font-size: 1.3rem; }
   .side .mini { width: 170px; }
 }
+
+/* ===== Seu dia: Jogo do dia, missões, sequência e nível ===== */
+.hoje-top { display: flex; gap: 8px; align-items: stretch; }
+.hoje .lv { flex: 1; min-width: 0; background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; padding: 5px 8px; box-shadow: 3px 3px 0 #000; }
+.hoje .lv b { font: 400 1.05rem var(--font-marker); }
+.hoje .lv i, .miss i { display: block; height: 7px; background: rgba(21, 20, 24, .15); border-radius: 4px; overflow: hidden; margin: 3px 0 1px; }
+.hoje .lv u, .miss u { display: block; height: 100%; background: linear-gradient(90deg, var(--pink), var(--yellow)); text-decoration: none; }
+.hoje .lv small { font-size: .72rem; color: var(--ink-soft); }
+.hoje .fogo { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 62px;
+  background: #2a2730; border: 2px solid var(--ink); border-radius: 6px; box-shadow: 3px 3px 0 #000; filter: grayscale(1); opacity: .7; font-size: 1.1rem; line-height: 1.1; }
+.hoje .fogo.on { filter: none; opacity: 1; background: linear-gradient(180deg, #ff7a1a, #ff3e2e); color: #fff; }
+.hoje .fogo b { font: 400 1.2rem var(--font-marker); }
+.hoje .fogo small { font-size: .7rem; }
+.jdd { position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; gap: 0 10px; align-items: center;
+  padding: 18px 12px 10px; background: radial-gradient(circle at 20% 60%, var(--c), transparent 70%), var(--wall-dark);
+  border: 3px solid var(--c); border-radius: 6px; box-shadow: 4px 4px 0 #000; color: var(--paper); transition: transform .12s; }
+.jdd:hover { transform: translateY(-2px) rotate(-.5deg); }
+.jdd-tag { position: absolute; top: -10px; left: 8px; background: var(--yellow); color: var(--ink); font: 700 .72rem var(--font-body);
+  padding: 1px 8px; border: 2px solid var(--ink); transform: rotate(-3deg); }
+.jdd-emo { grid-row: span 2; font-size: 2.1rem; animation: jdd-bob 2.4s ease-in-out infinite; }
+@keyframes jdd-bob { 50% { transform: translateY(-4px) rotate(-6deg); } }
+.jdd-t { font: 400 1.15rem/1.1 var(--font-marker); }
+.jdd-go { font-weight: 700; font-size: .82rem; color: var(--yellow); }
+.miss { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.miss li { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; align-items: center; font-size: .82rem; color: var(--muted); }
+.miss .ck { width: 18px; height: 18px; border: 2px solid var(--muted); border-radius: 4px; display: grid; place-items: center; font-size: .75rem; color: var(--ink); }
+.miss li.ok { color: var(--paper); }
+.miss li.ok .ck { background: #3ddc84; border-color: #3ddc84; }
+.miss li.ok .mt { text-decoration: line-through; opacity: .7; }
+.miss i { background: rgba(255, 255, 255, .12); height: 5px; }
+.miss small { font-weight: 700; color: var(--yellow); }
+.miss-foot { margin: 0; font-size: .75rem; color: var(--muted); }
+.card.is-jdd { outline: 4px solid var(--yellow); outline-offset: 3px; }
+.card.is-jdd::before { content: "⭐ Jogo do dia"; position: absolute; z-index: 3; top: -14px; right: 12px; background: var(--yellow); color: var(--ink);
+  font: 700 .78rem var(--font-body); padding: 2px 9px; border: 2px solid var(--ink); transform: rotate(3deg); }
+@media (prefers-reduced-motion: reduce) { .jdd-emo { animation: none; } }
+@media (max-width: 900px) { .side .hoje { max-width: 520px; } }
